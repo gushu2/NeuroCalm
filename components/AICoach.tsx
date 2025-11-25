@@ -262,31 +262,33 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const oscillatorNodes = useRef<OscillatorNode[]>([]);
   const gainNodeRef = useRef<GainNode | null>(null);
+  const audioIntervalRef = useRef<number | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const prevStressLevel = useRef<StressLevel | undefined>(StressLevel.NORMAL);
 
   // Initialize Audio Context
-  const initAudio = () => {
+  const initAudio = async () => {
     if (!audioCtxRef.current) {
       const Ctx = window.AudioContext || (window as any).webkitAudioContext;
       audioCtxRef.current = new Ctx();
     }
     if (audioCtxRef.current.state === 'suspended') {
-      audioCtxRef.current.resume();
+      await audioCtxRef.current.resume();
     }
+    return audioCtxRef.current;
   };
 
   // Generate Sounds (Offline)
-  const playSound = (type: 'alert' | 'deep' | 'light') => {
-    initAudio();
-    const ctx = audioCtxRef.current!;
+  const playSound = async (type: 'alert' | 'deep' | 'light') => {
+    const ctx = await initAudio();
     
-    // Stop previous sounds if continuous
-    if (type !== 'alert') stopSound();
+    // Stop previous sounds
+    stopSound();
 
     const masterGain = ctx.createGain();
     masterGain.connect(ctx.destination);
+    gainNodeRef.current = masterGain;
     
     if (type === 'alert') {
         // Notification Beep
@@ -295,66 +297,95 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
         osc.frequency.setValueAtTime(880, ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
         
-        masterGain.gain.setValueAtTime(0.1, ctx.currentTime);
+        masterGain.gain.setValueAtTime(0.2, ctx.currentTime);
         masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
         
         osc.connect(masterGain);
         osc.start();
         osc.stop(ctx.currentTime + 0.3);
-    } else {
-        // Music Simulation
-        gainNodeRef.current = masterGain;
+    } else if (type === 'deep') {
+        // "Weightless" Simulation - Ambient Drone (Louder & Richer)
         masterGain.gain.setValueAtTime(0, ctx.currentTime);
-        masterGain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 2); // Fade in
+        masterGain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 2); // Increased volume
 
-        const osc1 = ctx.createOscillator();
-        const osc2 = ctx.createOscillator();
-
-        if (type === 'deep') {
-            osc1.type = 'sine';
-            osc1.frequency.value = 100;
-            osc2.type = 'sine';
-            osc2.frequency.value = 104;
-        } else {
-            osc1.type = 'triangle';
-            osc1.frequency.value = 261.63; // Middle C
-            osc2.type = 'sine';
-            osc2.frequency.value = 329.63; // E
+        // Create a chord: F# Major (approx) low octave for ambient feel
+        const freqs = [92.50, 116.54, 138.59, 185.00]; // F#2, A#2, C#3, F#3
+        
+        freqs.forEach(f => {
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.value = f;
             
-            const filter = ctx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.value = 400;
-            osc1.disconnect();
-            osc1.connect(filter);
-            filter.connect(masterGain);
-            osc2.connect(masterGain);
-            
-            osc1.start();
-            osc2.start();
-            oscillatorNodes.current = [osc1, osc2];
-            return;
-        }
+            // Add subtle detune for thickness
+            osc.detune.value = Math.random() * 10 - 5;
 
-        osc1.connect(masterGain);
-        osc2.connect(masterGain);
-        osc1.start();
-        osc2.start();
-        oscillatorNodes.current = [osc1, osc2];
+            osc.connect(masterGain);
+            osc.start();
+            oscillatorNodes.current.push(osc);
+        });
+
+        // Add a slow LFO for movement (Binaural effect)
+        const lfo = ctx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.1; // 0.1 Hz
+        const lfoGain = ctx.createGain();
+        lfoGain.gain.value = 0.15;
+        lfo.connect(lfoGain);
+        lfoGain.connect(masterGain.gain);
+        lfo.start();
+        oscillatorNodes.current.push(lfo);
+
+    } else {
+        // "River Flows in You" - Light Melody Arpeggio Simulation
+        masterGain.gain.setValueAtTime(0.3, ctx.currentTime);
+
+        const notes = [261.63, 329.63, 392.00, 523.25]; // C Major arpeggio
+        let noteIndex = 0;
+
+        const playNote = () => {
+            if (!gainNodeRef.current) return;
+
+            const osc = ctx.createOscillator();
+            const noteGain = ctx.createGain();
+            
+            osc.type = 'triangle'; // Piano-like tone
+            osc.frequency.value = notes[noteIndex];
+            
+            noteGain.gain.setValueAtTime(0, ctx.currentTime);
+            noteGain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
+            noteGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+
+            osc.connect(noteGain);
+            noteGain.connect(masterGain);
+            
+            osc.start();
+            osc.stop(ctx.currentTime + 1.2);
+
+            noteIndex = (noteIndex + 1) % notes.length;
+        };
+
+        playNote(); // First note
+        const intervalId = window.setInterval(playNote, 500); // Sequence
+        audioIntervalRef.current = intervalId;
     }
   };
 
   const stopSound = () => {
+    if (audioIntervalRef.current) {
+        clearInterval(audioIntervalRef.current);
+        audioIntervalRef.current = null;
+    }
     if (gainNodeRef.current && audioCtxRef.current) {
         const ctx = audioCtxRef.current;
         gainNodeRef.current.gain.cancelScheduledValues(ctx.currentTime);
-        gainNodeRef.current.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+        gainNodeRef.current.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
         
         setTimeout(() => {
             oscillatorNodes.current.forEach(node => {
                 try { node.stop(); } catch(e){}
             });
             oscillatorNodes.current = [];
-        }, 550);
+        }, 350);
     }
   };
 
