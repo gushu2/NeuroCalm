@@ -4,89 +4,182 @@ import { HeartRateMonitor } from './HeartRateMonitor';
 import { StressLevel, HeartRateData } from '../types';
 import { WellnessToolkit } from './WellnessToolkit';
 import { AICoach } from './AICoach';
+import { Download, Bell, Zap, Shield, Brain, Activity, FileText, Info } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
-  const [bpm, setBpm] = useState(72);
+  const [bpm, setBpm] = useState(0);
   const [stressLevel, setStressLevel] = useState<StressLevel>(StressLevel.NORMAL);
   const [history, setHistory] = useState<HeartRateData[]>([]);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   
-  // Timer for simulation
-  const intervalRef = useRef<number | null>(null);
+  // Notifications State
+  const [notifications, setNotifications] = useState<{id: number, text: string, time: string, type: 'alert' | 'info'}[]>([
+    { id: 1, text: "System ready. Connect ESP32 to begin.", time: new Date().toLocaleTimeString(), type: 'info' }
+  ]);
+  
+  // References for Web Serial API
+  const portRef = useRef<any>(null);
+  const readerRef = useRef<ReadableStreamDefaultReader<string> | null>(null);
+  const readableStreamClosedRef = useRef<Promise<void> | null>(null);
+  const prevStressRef = useRef<StressLevel>(StressLevel.NORMAL);
 
-  // Simulation Logic
+  // Update Stress Level based on real BPM
   useEffect(() => {
-    if (isConnected) {
-      intervalRef.current = window.setInterval(() => {
-        setBpm((prev) => {
-          // Simulate fluctuation
-          const change = Math.floor(Math.random() * 7) - 3; // -3 to +3
-          let newBpm = prev + change;
-          
-          // Occasional spikes for demonstration
-          if (Math.random() > 0.95) newBpm += 15;
-          if (Math.random() > 0.95) newBpm -= 10;
-          
-          // Clamp values
-          if (newBpm < 45) newBpm = 45;
-          if (newBpm > 140) newBpm = 140;
-
-          return newBpm;
-        });
-      }, 1000);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isConnected]);
-
-  // Update Stress Level and History based on BPM
-  useEffect(() => {
-    if (!isConnected) return;
-
-    // Classification Logic from Report
     let currentLevel = StressLevel.NORMAL;
-    if (bpm >= 80 && bpm < 120) {
-      currentLevel = StressLevel.MILD;
-    } else if (bpm >= 120) {
-      currentLevel = StressLevel.HIGH;
+    
+    // Logic: Only classify if we have a valid heart rate reading
+    if (bpm > 40) {
+      if (bpm >= 80 && bpm < 120) {
+        currentLevel = StressLevel.MILD;
+      } else if (bpm >= 120) {
+        currentLevel = StressLevel.HIGH;
+      }
+    } else {
+        currentLevel = StressLevel.NORMAL;
     }
+    
     setStressLevel(currentLevel);
 
-    const now = new Date();
-    const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-    
-    setHistory(prev => {
-      const newData = [...prev, { timestamp: timeStr, bpm }];
-      // Keep last 30 data points for the live chart
-      if (newData.length > 30) return newData.slice(newData.length - 30);
-      return newData;
-    });
+    // Handle Notifications for Stress Changes
+    if (isConnected && currentLevel !== prevStressRef.current && currentLevel !== StressLevel.NORMAL) {
+        const msg = currentLevel === StressLevel.HIGH 
+            ? `High Stress detected (${bpm} BPM). AI Coach activated.`
+            : `Mild Stress level rising (${bpm} BPM).`;
+            
+        setNotifications(prev => [
+            { id: Date.now(), text: msg, time: new Date().toLocaleTimeString(), type: 'alert' },
+            ...prev
+        ].slice(0, 5));
+    }
+    prevStressRef.current = currentLevel;
+
+    if (isConnected && bpm > 0) {
+        const now = new Date();
+        const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        
+        setHistory(prev => {
+          const newData = [...prev, { timestamp: timeStr, bpm }];
+          // Keep last 30 data points for the live chart
+          if (newData.length > 30) return newData.slice(newData.length - 30);
+          return newData;
+        });
+    }
 
   }, [bpm, isConnected]);
 
-  const toggleConnection = () => {
-    setIsConnected(!isConnected);
-    if (!isConnected) {
-        // Reset for new session
-        setHistory([]); 
-        setBpm(72);
+  // Connect to ESP32 via USB Serial
+  const connectSerial = async () => {
+    setConnectionError(null);
+    if (!("serial" in navigator)) {
+      setConnectionError("Your browser does not support Web Serial.");
+      return;
     }
+
+    try {
+      const navSerial = (navigator as any).serial;
+      const port = await navSerial.requestPort();
+      await port.open({ baudRate: 115200 });
+      
+      portRef.current = port;
+      setIsConnected(true);
+      setHistory([]); 
+      setNotifications(prev => [{ id: Date.now(), text: "ESP32 Device Connected Successfully", time: new Date().toLocaleTimeString(), type: 'info' }, ...prev]);
+
+      const textDecoder = new TextDecoderStream();
+      readableStreamClosedRef.current = port.readable.pipeTo(textDecoder.writable);
+      const reader = textDecoder.readable.getReader();
+      readerRef.current = reader;
+
+      let buffer = "";
+
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          
+          if (value) {
+            buffer += value;
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (trimmed.startsWith("Heart Rate:")) {
+                 const bpmPart = trimmed.split(":")[1];
+                 if (bpmPart) {
+                    const newBpm = parseFloat(bpmPart);
+                    if (!isNaN(newBpm)) setBpm(Math.round(newBpm));
+                 }
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error reading from serial port:", error);
+        setConnectionError("Lost connection to device.");
+        setNotifications(prev => [{ id: Date.now(), text: "Connection lost to ESP32.", time: new Date().toLocaleTimeString(), type: 'alert' }, ...prev]);
+      } finally {
+        reader.releaseLock();
+      }
+
+    } catch (err: any) {
+      console.error("Failed to connect:", err);
+      setIsConnected(false);
+      setConnectionError("Failed to connect. Please check cables.");
+    }
+  };
+
+  const disconnectSerial = async () => {
+    try {
+        if (readerRef.current) {
+            await readerRef.current.cancel();
+            readerRef.current = null;
+        }
+        if (readableStreamClosedRef.current) {
+            await readableStreamClosedRef.current.catch(() => {});
+            readableStreamClosedRef.current = null;
+        }
+        if (portRef.current) {
+            await portRef.current.close();
+            portRef.current = null;
+        }
+    } catch (e) {
+        console.error("Error during disconnect:", e);
+    }
+    setIsConnected(false);
+    setBpm(0);
+    setNotifications(prev => [{ id: Date.now(), text: "Device Disconnected", time: new Date().toLocaleTimeString(), type: 'info' }, ...prev]);
+  };
+
+  const downloadData = () => {
+    if (history.length === 0) {
+        alert("No data to download yet.");
+        return;
+    }
+    const csvContent = "data:text/csv;charset=utf-8," 
+        + "Timestamp,BPM,Stress Level\n" 
+        + history.map(row => {
+            let level = "Normal";
+            if(row.bpm >= 80 && row.bpm < 120) level = "Mild";
+            if(row.bpm >= 120) level = "High";
+            return `${row.timestamp},${row.bpm},${level}`;
+        }).join("\n");
+        
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `neurocalm_session_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       
-      {/* Top Row: Monitor & Chart */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Top Row: Monitor, Chart, Notifications */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* Left Col: Heart Rate Monitor */}
         <div className="lg:col-span-1">
@@ -94,26 +187,25 @@ export const Dashboard: React.FC = () => {
             bpm={bpm} 
             stressLevel={stressLevel} 
             isConnected={isConnected} 
-            onConnect={toggleConnection}
-            onDisconnect={toggleConnection}
+            onConnect={connectSerial}
+            onDisconnect={disconnectSerial}
+            error={connectionError}
           />
         </div>
 
-        {/* Right Col: Live Chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        {/* Middle Col: Live Chart */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 relative">
            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-slate-800 font-semibold text-lg">Real-time Analysis</h2>
-              <div className="flex gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                   <div className="w-3 h-3 rounded bg-green-500"></div> <span>Normal</span>
-                </div>
-                <div className="flex items-center gap-2">
-                   <div className="w-3 h-3 rounded bg-yellow-500"></div> <span>Mild</span>
-                </div>
-                <div className="flex items-center gap-2">
-                   <div className="w-3 h-3 rounded bg-red-500"></div> <span>High</span>
-                </div>
-              </div>
+              <h2 className="text-slate-800 font-semibold text-lg flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-blue-500" />
+                  Real-time Analysis
+              </h2>
+              <button 
+                onClick={downloadData}
+                className="text-xs flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg transition-colors font-medium"
+              >
+                  <Download className="w-3 h-3" /> Export Data
+              </button>
            </div>
            
            <div className="h-64 w-full">
@@ -134,9 +226,7 @@ export const Dashboard: React.FC = () => {
                     axisLine={false}
                     width={30}
                   />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                   <Line 
                     type="monotone" 
                     dataKey="bpm" 
@@ -146,11 +236,35 @@ export const Dashboard: React.FC = () => {
                     activeDot={{ r: 6, fill: '#2563eb' }}
                     isAnimationActive={false}
                   />
-                  {/* Reference Lines for Zones */}
-                  {/* These could be added using ReferenceArea if desired, but kept simple for now */}
                </LineChart>
              </ResponsiveContainer>
            </div>
+        </div>
+
+        {/* Right Col: Real-time Notifications */}
+        <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-0 overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-slate-500" /> Live Alerts
+                </h3>
+                <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">{notifications.length}</span>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[300px]">
+                {notifications.length === 0 && (
+                    <p className="text-center text-slate-400 text-xs py-4">No recent alerts</p>
+                )}
+                {notifications.map((note) => (
+                    <div key={note.id} className={`p-3 rounded-lg border text-xs ${note.type === 'alert' ? 'bg-red-50 border-red-100' : 'bg-blue-50 border-blue-100'}`}>
+                        <div className="flex justify-between mb-1">
+                            <span className={`font-bold ${note.type === 'alert' ? 'text-red-700' : 'text-blue-700'}`}>
+                                {note.type === 'alert' ? 'Alert' : 'System'}
+                            </span>
+                            <span className="text-slate-400">{note.time}</span>
+                        </div>
+                        <p className="text-slate-600 leading-relaxed">{note.text}</p>
+                    </div>
+                ))}
+            </div>
         </div>
       </div>
 
@@ -160,6 +274,37 @@ export const Dashboard: React.FC = () => {
       {/* Bottom Row: AI Coach */}
       <div className="grid grid-cols-1 gap-6">
         <AICoach currentBpm={isConnected ? bpm : undefined} stressLevel={isConnected ? stressLevel : undefined} />
+      </div>
+
+      {/* Footer: Key Features Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-slate-200">
+         <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-start gap-4">
+            <div className="p-3 bg-blue-50 rounded-lg text-blue-600">
+                <Zap className="w-6 h-6" />
+            </div>
+            <div>
+                <h4 className="font-bold text-slate-800">Real-time Analysis</h4>
+                <p className="text-sm text-slate-500 mt-1">Instant heart rate processing via ESP32 sensors with ms-latency.</p>
+            </div>
+         </div>
+         <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-start gap-4">
+            <div className="p-3 bg-purple-50 rounded-lg text-purple-600">
+                <Brain className="w-6 h-6" />
+            </div>
+            <div>
+                <h4 className="font-bold text-slate-800">AI Coaching</h4>
+                <p className="text-sm text-slate-500 mt-1">Personalized stress relief with yoga and music recommendations.</p>
+            </div>
+         </div>
+         <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-start gap-4">
+            <div className="p-3 bg-emerald-50 rounded-lg text-emerald-600">
+                <Shield className="w-6 h-6" />
+            </div>
+            <div>
+                <h4 className="font-bold text-slate-800">Privacy First</h4>
+                <p className="text-sm text-slate-500 mt-1">Your physiological data is processed locally and never stored on cloud.</p>
+            </div>
+         </div>
       </div>
 
     </div>

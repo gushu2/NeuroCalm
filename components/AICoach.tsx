@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Bot, Music, Activity, Play, Pause, AlertCircle } from 'lucide-react';
+import { Send, Bot, Music, Activity, Play, Pause, AlertCircle, Volume2, Wind, Timer, RotateCcw } from 'lucide-react';
 import { StressLevel, ChatMessage } from '../types';
 import { sendMessage } from '../services/geminiService';
 
@@ -44,6 +44,203 @@ const OFFLINE_SOLUTIONS = {
   ]
 };
 
+// Breathing Techniques Configuration
+const BREATHING_TECHNIQUES = {
+  'box': {
+    title: "Box Breathing",
+    description: "Equal duration breathing for focus and calm. Used by Navy SEALs.",
+    phases: [
+      { label: "Inhale", duration: 4, scale: 1.25, text: "Breathe In...", color: "bg-teal-500" },
+      { label: "Hold", duration: 4, scale: 1.25, text: "Hold Breath", color: "bg-teal-600" },
+      { label: "Exhale", duration: 4, scale: 1.0, text: "Breathe Out...", color: "bg-teal-400" },
+      { label: "Hold", duration: 4, scale: 1.0, text: "Hold Empty", color: "bg-teal-600" }
+    ]
+  },
+  '478': {
+    title: "4-7-8 Breathing",
+    description: "Dr. Weil's technique for deep relaxation and anxiety reduction.",
+    phases: [
+      { label: "Inhale", duration: 4, scale: 1.25, text: "Inhale (Nose)", color: "bg-indigo-500" },
+      { label: "Hold", duration: 7, scale: 1.25, text: "Hold Breath", color: "bg-indigo-600" },
+      { label: "Exhale", duration: 8, scale: 1.0, text: "Exhale (Mouth)", color: "bg-indigo-400" }
+    ]
+  }
+};
+
+// CSS Styles for SVG Animations
+const animationStyles = `
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  @keyframes tilt {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+  .animate-breathe {
+    animation: breathe 4s ease-in-out infinite;
+    transform-origin: center center;
+  }
+  .animate-tilt {
+    animation: tilt 3s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+`;
+
+// Visual Component for Yoga Poses
+const YogaVisual: React.FC<{ title: string }> = ({ title }) => {
+    if (title.includes("Child's Pose")) {
+        return (
+            <div className="w-full h-40 bg-orange-50 rounded-xl mb-4 border border-orange-100 overflow-hidden relative flex items-center justify-center">
+                <style>{animationStyles}</style>
+                <div className="absolute top-2 right-2 bg-orange-200/50 text-orange-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Animated Guide</div>
+                <svg viewBox="0 0 200 120" className="w-48 h-auto text-orange-600">
+                    <line x1="20" y1="105" x2="180" y2="105" stroke="#fdba74" strokeWidth="4" strokeLinecap="round" />
+                    <g className="animate-breathe">
+                        <path d="M50,103 L90,103 L100,75 L60,75 Z" fill="#fdba74" />
+                        <path d="M60,75 Q90,55 130,95" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round" />
+                        <circle cx="135" cy="98" r="9" fill="currentColor" />
+                        <line x1="130" y1="95" x2="170" y2="103" stroke="currentColor" strokeWidth="5" strokeLinecap="round" opacity="0.6" />
+                    </g>
+                </svg>
+            </div>
+        );
+    }
+    if (title.includes("Neck")) {
+        return (
+            <div className="w-full h-40 bg-orange-50 rounded-xl mb-4 border border-orange-100 overflow-hidden relative flex items-center justify-center">
+                <style>{animationStyles}</style>
+                <div className="absolute top-2 right-2 bg-orange-200/50 text-orange-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Animated Guide</div>
+                <svg viewBox="0 0 200 150" className="w-40 h-auto text-orange-600">
+                    <defs>
+                         <marker id="arrow" markerWidth="6" markerHeight="6" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+                           <path d="M0,0 L0,6 L9,3 z" fill="#ea580c" />
+                         </marker>
+                    </defs>
+                    <path d="M60,150 Q100,140 140,150 L140,160 L60,160 Z" fill="#fdba74" />
+                    <rect x="85" y="110" width="30" height="40" fill="#fdba74" rx="5" />
+                    <g className="animate-tilt" style={{ transformBox: 'fill-box', transformOrigin: 'center 90%' }}>
+                         <rect x="92" y="90" width="16" height="25" fill="#fdba74" />
+                         <circle cx="100" cy="80" r="28" fill="currentColor" />
+                         <path d="M100,70 L100,90" stroke="white" strokeWidth="2" opacity="0.3" />
+                    </g>
+                    <path d="M140,50 Q160,70 150,90" fill="none" stroke="#ea580c" strokeWidth="3" markerEnd="url(#arrow)" strokeDasharray="4,4" opacity="0.6" />
+                    <path d="M60,50 Q40,70 50,90" fill="none" stroke="#ea580c" strokeWidth="3" markerEnd="url(#arrow)" strokeDasharray="4,4" opacity="0.6" />
+                </svg>
+            </div>
+        );
+    }
+    return (
+        <div className="w-full h-32 bg-orange-50 rounded-lg flex items-center justify-center mb-4">
+             <Activity className="w-12 h-12 text-orange-300 opacity-50" />
+        </div>
+    );
+};
+
+// Interactive Breathing Visual Component
+const BreathingVisual: React.FC<{ type: 'box' | '478' }> = ({ type }) => {
+    const config = BREATHING_TECHNIQUES[type];
+    const [isActive, setIsActive] = useState(false);
+    const [phaseIndex, setPhaseIndex] = useState(0);
+    const [secondsLeft, setSecondsLeft] = useState(config.phases[0].duration);
+    
+    useEffect(() => {
+        let interval: number;
+        if (isActive) {
+            interval = window.setInterval(() => {
+                setSecondsLeft((prev) => {
+                    if (prev <= 1) {
+                        // Move to next phase
+                        const nextPhase = (phaseIndex + 1) % config.phases.length;
+                        setPhaseIndex(nextPhase);
+                        return config.phases[nextPhase].duration;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        } else {
+            // Reset logic optional
+        }
+        return () => clearInterval(interval);
+    }, [isActive, phaseIndex, config.phases]);
+
+    const handleToggle = () => {
+        if (!isActive) {
+            setIsActive(true);
+            // Reset to start
+            if (secondsLeft === 0) { // If finished (unlikely with loop)
+                setPhaseIndex(0);
+                setSecondsLeft(config.phases[0].duration);
+            }
+        } else {
+            setIsActive(false);
+        }
+    };
+
+    const currentPhase = config.phases[phaseIndex];
+    const isExpanding = currentPhase.scale > 1;
+
+    return (
+        <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 w-full mt-2">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-slate-800 font-bold flex items-center gap-2">
+                    <Wind className="w-4 h-4 text-slate-500" />
+                    {config.title}
+                </h3>
+                <span className="text-[10px] text-slate-400 bg-white px-2 py-1 rounded border border-slate-100">
+                    {isActive ? 'Session Active' : 'Ready'}
+                </span>
+            </div>
+            
+            <div className="relative h-48 flex items-center justify-center mb-4 overflow-hidden">
+                {/* Background Rings */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-10">
+                    <div className="w-32 h-32 rounded-full border-4 border-slate-400"></div>
+                    <div className="absolute w-24 h-24 rounded-full border-4 border-slate-400"></div>
+                </div>
+
+                {/* Animated Breathing Circle */}
+                <div 
+                    className={`relative w-24 h-24 rounded-full flex items-center justify-center shadow-lg transition-all duration-[1000ms] ease-in-out ${currentPhase.color}`}
+                    style={{ 
+                        transform: isActive ? `scale(${currentPhase.scale})` : 'scale(1)',
+                        transitionDuration: isActive ? `${currentPhase.duration}s` : '0.5s',
+                        opacity: isActive ? 1 : 0.5
+                    }}
+                >
+                     <span className="text-white font-bold text-2xl tabular-nums">
+                         {isActive ? secondsLeft : <Wind className="w-8 h-8 opacity-50"/>}
+                     </span>
+                </div>
+
+                {/* Instruction Text */}
+                <div className="absolute bottom-2 text-center w-full">
+                    <p className={`text-lg font-bold transition-all duration-300 ${isActive ? 'text-slate-700' : 'text-slate-400'}`}>
+                        {isActive ? currentPhase.text : "Press Start"}
+                    </p>
+                </div>
+            </div>
+
+            <div className="flex gap-2">
+                <button 
+                    onClick={handleToggle}
+                    className={`flex-1 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all ${
+                        isActive 
+                        ? 'bg-red-50 text-red-600 hover:bg-red-100' 
+                        : 'bg-slate-800 text-white hover:bg-slate-900 shadow-md'
+                    }`}
+                >
+                    {isActive ? <><Pause className="w-4 h-4"/> Pause</> : <><Play className="w-4 h-4"/> Start Exercise</>}
+                </button>
+            </div>
+            
+            <p className="text-xs text-slate-500 mt-3 text-center leading-relaxed px-2">
+                {config.description}
+            </p>
+        </div>
+    );
+};
+
 export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -61,25 +258,122 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
   const [progress, setProgress] = useState<Record<string, number>>({});
   const playbackInterval = useRef<number | null>(null);
 
+  // Web Audio API Refs (for offline sound generation)
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const oscillatorNodes = useRef<OscillatorNode[]>([]);
+  const gainNodeRef = useRef<GainNode | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const prevStressLevel = useRef<StressLevel | undefined>(StressLevel.NORMAL);
 
+  // Initialize Audio Context
+  const initAudio = () => {
+    if (!audioCtxRef.current) {
+      const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+      audioCtxRef.current = new Ctx();
+    }
+    if (audioCtxRef.current.state === 'suspended') {
+      audioCtxRef.current.resume();
+    }
+  };
+
+  // Generate Sounds (Offline)
+  const playSound = (type: 'alert' | 'deep' | 'light') => {
+    initAudio();
+    const ctx = audioCtxRef.current!;
+    
+    // Stop previous sounds if continuous
+    if (type !== 'alert') stopSound();
+
+    const masterGain = ctx.createGain();
+    masterGain.connect(ctx.destination);
+    
+    if (type === 'alert') {
+        // Notification Beep
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
+        
+        masterGain.gain.setValueAtTime(0.1, ctx.currentTime);
+        masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+        
+        osc.connect(masterGain);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+    } else {
+        // Music Simulation
+        gainNodeRef.current = masterGain;
+        masterGain.gain.setValueAtTime(0, ctx.currentTime);
+        masterGain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 2); // Fade in
+
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+
+        if (type === 'deep') {
+            osc1.type = 'sine';
+            osc1.frequency.value = 100;
+            osc2.type = 'sine';
+            osc2.frequency.value = 104;
+        } else {
+            osc1.type = 'triangle';
+            osc1.frequency.value = 261.63; // Middle C
+            osc2.type = 'sine';
+            osc2.frequency.value = 329.63; // E
+            
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 400;
+            osc1.disconnect();
+            osc1.connect(filter);
+            filter.connect(masterGain);
+            osc2.connect(masterGain);
+            
+            osc1.start();
+            osc2.start();
+            oscillatorNodes.current = [osc1, osc2];
+            return;
+        }
+
+        osc1.connect(masterGain);
+        osc2.connect(masterGain);
+        osc1.start();
+        osc2.start();
+        oscillatorNodes.current = [osc1, osc2];
+    }
+  };
+
+  const stopSound = () => {
+    if (gainNodeRef.current && audioCtxRef.current) {
+        const ctx = audioCtxRef.current;
+        gainNodeRef.current.gain.cancelScheduledValues(ctx.currentTime);
+        gainNodeRef.current.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+        
+        setTimeout(() => {
+            oscillatorNodes.current.forEach(node => {
+                try { node.stop(); } catch(e){}
+            });
+            oscillatorNodes.current = [];
+        }, 550);
+    }
+  };
+
   // Auto-Response Logic for Stress Notifications
   useEffect(() => {
-    // Skip if undefined or normal (unless we want to confirm return to normal)
     if (!stressLevel || stressLevel === StressLevel.NORMAL) {
       prevStressLevel.current = stressLevel;
       return;
     }
 
     // Trigger notification if stress level CHANGED to MILD or HIGH
-    // Or if it persists at HIGH for a long time (logic simplified here to change-based)
     if (stressLevel !== prevStressLevel.current) {
         const solutions = OFFLINE_SOLUTIONS[stressLevel];
-        // Pick a solution (alternate or random)
         const solution = solutions[Math.floor(Math.random() * solutions.length)];
         
-        // 1. Notification Message
+        // 1. Audible Alert
+        try { playSound('alert'); } catch (e) { console.log('Audio requires interaction first'); }
+
+        // 2. Notification Message
         const alertMsg: ChatMessage = {
             id: Date.now().toString(),
             role: 'model',
@@ -87,7 +381,7 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
             timestamp: new Date()
         };
         
-        // 2. Solution Card Message
+        // 3. Solution Card Message
         const solutionMsg: ChatMessage = {
             id: (Date.now() + 1).toString(),
             role: 'model',
@@ -101,19 +395,19 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
     prevStressLevel.current = stressLevel;
   }, [stressLevel, currentBpm]);
 
-  // Audio Playback Simulation Logic
+  // Audio Playback UI Simulation
   useEffect(() => {
     if (playingId) {
         playbackInterval.current = window.setInterval(() => {
             setProgress(prev => {
                 const currentVal = prev[playingId] || 0;
                 if (currentVal >= 100) {
-                    setPlayingId(null); // Stop when done
+                    toggleAudio(playingId, ''); // Stop when done
                     return { ...prev, [playingId]: 0 };
                 }
-                return { ...prev, [playingId]: currentVal + 1 }; // Increment 1% per tick (fast for demo)
+                return { ...prev, [playingId]: currentVal + 0.5 }; // Slower progress
             });
-        }, 100); // Fast simulation
+        }, 100); 
     } else {
         if (playbackInterval.current) clearInterval(playbackInterval.current);
     }
@@ -122,12 +416,28 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
     };
   }, [playingId]);
 
-  const toggleAudio = (msgId: string) => {
+  const toggleAudio = (msgId: string, title: string) => {
     if (playingId === msgId) {
         setPlayingId(null); // Pause
+        stopSound();
     } else {
         setPlayingId(msgId); // Play
+        if (title.includes('Weightless')) {
+            playSound('deep');
+        } else {
+            playSound('light');
+        }
     }
+  };
+
+  const triggerBreathing = (type: 'box' | '478') => {
+      const msg: ChatMessage = {
+          id: Date.now().toString(),
+          role: 'model',
+          text: JSON.stringify({ type: 'breathing', technique: type }),
+          timestamp: new Date()
+      };
+      setMessages(prev => [...prev, msg]);
   };
 
   const scrollToBottom = () => {
@@ -136,7 +446,7 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, playingId]); // Scroll when messages arrive or player state changes
+  }, [messages, playingId]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -152,7 +462,6 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
     setInput('');
     setIsLoading(true);
 
-    // Use offline service
     const responseText = await sendMessage(null, userMsg.text, currentBpm, stressLevel);
 
     const botMsg: ChatMessage = {
@@ -177,66 +486,80 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
   const renderMessageContent = (msg: ChatMessage) => {
     const text = msg.text;
     try {
-        // Detect JSON object for Solution Cards
-        if (text.startsWith('{') && text.includes('title')) {
+        if (text.startsWith('{')) {
             const data = JSON.parse(text);
-            const isYoga = data.type === 'yoga';
-            const isPlaying = playingId === msg.id;
-            const currentProgress = progress[msg.id] || 0;
-
-            return (
-                <div className="bg-white rounded-xl p-4 mt-2 border border-slate-200 shadow-md w-full max-w-sm">
-                    {/* Header */}
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className={`p-2 rounded-full ${isYoga ? 'bg-orange-100 text-orange-600' : 'bg-purple-100 text-purple-600'}`}>
-                            {isYoga ? <Activity className="w-5 h-5" /> : <Music className="w-5 h-5" />}
-                        </div>
-                        <div>
-                            <span className="text-xs font-bold uppercase text-slate-400 tracking-wider">Recommended Solution</span>
-                            <h3 className="font-bold text-slate-800 text-lg leading-tight">{data.title}</h3>
-                        </div>
+            
+            // Handle Breathing Card
+            if (data.type === 'breathing') {
+                return (
+                    <div className="bg-white rounded-xl p-3 mt-2 border border-slate-200 shadow-md w-full max-w-sm">
+                         <BreathingVisual type={data.technique} />
                     </div>
+                );
+            }
 
-                    <p className="text-sm text-slate-600 mb-4">{data.description}</p>
-                    
-                    {isYoga ? (
-                        <div className="bg-orange-50 p-3 rounded-lg border border-orange-100">
-                            <p className="text-sm text-orange-800 italic">"{data.instruction}"</p>
-                            <div className="mt-2 flex items-center gap-2 text-xs text-orange-600 font-semibold">
-                                <Activity className="w-3 h-3" />
-                                {data.duration}
+            // Handle Yoga/Music Card
+            if (data.includes('title') || data.type === 'yoga' || data.type === 'song') {
+                const isYoga = data.type === 'yoga';
+                const isPlaying = playingId === msg.id;
+                const currentProgress = progress[msg.id] || 0;
+
+                return (
+                    <div className="bg-white rounded-xl p-4 mt-2 border border-slate-200 shadow-md w-full max-w-sm">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className={`p-2 rounded-full ${isYoga ? 'bg-orange-100 text-orange-600' : 'bg-purple-100 text-purple-600'}`}>
+                                {isYoga ? <Activity className="w-5 h-5" /> : <Music className="w-5 h-5" />}
+                            </div>
+                            <div>
+                                <span className="text-xs font-bold uppercase text-slate-400 tracking-wider">Recommended Solution</span>
+                                <h3 className="font-bold text-slate-800 text-lg leading-tight">{data.title}</h3>
                             </div>
                         </div>
-                    ) : (
-                        <div className="bg-purple-50 p-3 rounded-lg border border-purple-100">
-                            {/* Audio Player UI */}
-                            <div className="flex items-center gap-3">
-                                <button 
-                                    onClick={() => toggleAudio(msg.id)}
-                                    className="w-10 h-10 flex items-center justify-center bg-purple-600 text-white rounded-full hover:bg-purple-700 transition shadow-sm"
-                                >
-                                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-1" />}
-                                </button>
-                                <div className="flex-1">
-                                    <div className="flex justify-between text-xs text-purple-700 mb-1 font-medium">
-                                        <span>{isPlaying ? 'Now Playing...' : 'Paused'}</span>
-                                        <span>{data.durationStr}</span>
-                                    </div>
-                                    <div className="w-full bg-purple-200 rounded-full h-1.5 overflow-hidden">
-                                        <div 
-                                            className="bg-purple-600 h-full transition-all duration-100 ease-linear"
-                                            style={{ width: `${currentProgress}%` }}
-                                        ></div>
-                                    </div>
+
+                        <p className="text-sm text-slate-600 mb-4">{data.description}</p>
+                        
+                        {isYoga ? (
+                            <div className="bg-orange-50 p-3 rounded-lg border border-orange-100">
+                                <YogaVisual title={data.title} />
+                                <p className="text-sm text-orange-800 italic">"{data.instruction}"</p>
+                                <div className="mt-2 flex items-center gap-2 text-xs text-orange-600 font-semibold">
+                                    <Activity className="w-3 h-3" />
+                                    {data.duration}
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </div>
-            );
+                        ) : (
+                            <div className="bg-purple-50 p-3 rounded-lg border border-purple-100">
+                                <div className="flex items-center gap-3">
+                                    <button 
+                                        onClick={() => toggleAudio(msg.id, data.title)}
+                                        className="w-10 h-10 flex items-center justify-center bg-purple-600 text-white rounded-full hover:bg-purple-700 transition shadow-sm"
+                                    >
+                                        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-1" />}
+                                    </button>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between text-xs text-purple-700 mb-1 font-medium">
+                                            <span>{isPlaying ? 'Playing Audio...' : 'Paused'}</span>
+                                            <span>{data.durationStr}</span>
+                                        </div>
+                                        <div className="w-full bg-purple-200 rounded-full h-1.5 overflow-hidden">
+                                            <div 
+                                                className="bg-purple-600 h-full transition-all duration-100 ease-linear"
+                                                style={{ width: `${currentProgress}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-2 flex items-center gap-1 text-[10px] text-purple-400">
+                                    <Volume2 className="w-3 h-3" />
+                                    <span>Generating offline soothing audio...</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            }
         }
         
-        // Render simple alert text differently
         if (text.startsWith('⚠️')) {
              return (
                  <div className="flex items-start gap-2 text-red-600 font-medium">
@@ -260,8 +583,27 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
         </div>
         <div>
           <h2 className="font-bold text-lg">Wellness Assistant</h2>
-          <p className="text-teal-100 text-xs">Real-time Stress Monitoring • Offline</p>
+          <p className="text-teal-100 text-xs">Real-time Stress Monitoring • Audio & Video Guides</p>
         </div>
+      </div>
+
+      {/* Quick Relief Tools Section - Always Available */}
+      <div className="bg-slate-50 border-b border-slate-100 px-4 py-3">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Quick Relief Tools</p>
+          <div className="flex gap-2">
+              <button 
+                onClick={() => triggerBreathing('box')}
+                className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 transition-colors shadow-sm"
+              >
+                  <Wind className="w-3.5 h-3.5" /> Box Breathing
+              </button>
+              <button 
+                onClick={() => triggerBreathing('478')}
+                className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 transition-colors shadow-sm"
+              >
+                  <Timer className="w-3.5 h-3.5" /> 4-7-8 Breathing
+              </button>
+          </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-50">
@@ -270,9 +612,8 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
             <div className={`max-w-[90%] ${
               msg.role === 'user' 
                 ? 'bg-teal-600 text-white rounded-2xl rounded-tr-none px-4 py-3' 
-                : 'w-full' // Full width container for bot to allow left alignment logic within
+                : 'w-full'
             }`}>
-               {/* Wrapper for Bot messages to handle the card width naturally */}
                <div className={`${msg.role === 'user' ? '' : 'flex flex-col items-start'}`}>
                   {msg.role === 'model' && !msg.text.startsWith('{') && (
                       <div className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm mb-1">
@@ -280,7 +621,6 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
                       </div>
                   )}
                   {msg.role === 'model' && msg.text.startsWith('{') && (
-                      // Render cards directly without the bubble wrapper style
                       renderMessageContent(msg)
                   )}
                    {msg.role === 'user' && renderMessageContent(msg)}
