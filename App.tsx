@@ -1,11 +1,31 @@
 import React, { useState } from 'react';
 import { Dashboard } from './components/Dashboard';
 import { AdminPanel } from './components/AdminPanel';
+import { LoginPage } from './components/LoginPage';
 import { LayoutDashboard, Users, ShieldCheck, LogOut } from 'lucide-react';
 
 const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentView, setCurrentView] = useState<'student' | 'admin'>('student');
 
+  // Handle successful login
+  const handleLogin = (role: 'student' | 'admin') => {
+    setIsAuthenticated(true);
+    setCurrentView(role);
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setCurrentView('student'); // Reset default view
+  };
+
+  // If not authenticated, show Login Page
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  // Main Application Layout
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
       
@@ -47,14 +67,22 @@ const App: React.FC = () => {
 
         <div className="absolute bottom-0 w-full p-4 border-t border-slate-100">
           <div className="flex items-center gap-3 px-4 py-2">
-            <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold">
-              G
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${currentView === 'admin' ? 'bg-purple-100 text-purple-600' : 'bg-slate-200 text-slate-500'}`}>
+              {currentView === 'admin' ? 'A' : 'G'}
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-slate-800">Guruganesh N Bhat</p>
-              <p className="text-xs text-slate-400">4MW23CS044</p>
+              <p className="text-sm font-medium text-slate-800">
+                {currentView === 'admin' ? 'System Admin' : 'Guruganesh N Bhat'}
+              </p>
+              <p className="text-xs text-slate-400">
+                {currentView === 'admin' ? 'Administrator' : '4MW23CS044'}
+              </p>
             </div>
-            <button className="text-slate-400 hover:text-slate-600">
+            <button 
+              onClick={handleLogout}
+              className="text-slate-400 hover:text-red-500 transition-colors p-1"
+              title="Logout"
+            >
               <LogOut className="w-4 h-4" />
             </button>
           </div>
