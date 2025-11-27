@@ -4,7 +4,7 @@ import { HeartRateMonitor } from './HeartRateMonitor';
 import { StressLevel, HeartRateData } from '../types';
 import { WellnessToolkit } from './WellnessToolkit';
 import { AICoach } from './AICoach';
-import { Download, Bell, Zap, Shield, Brain, Activity, FileText, Info } from 'lucide-react';
+import { Download, Bell, Zap, Shield, Brain, Activity, FileText, Trash2, Database } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -48,7 +48,7 @@ export const Dashboard: React.FC = () => {
             : `Mild Stress level rising (${bpm} BPM).`;
             
         setNotifications(prev => [
-            { id: Date.now(), text: msg, time: new Date().toLocaleTimeString(), type: 'alert' },
+            { id: Date.now(), text: msg, time: new Date().toLocaleTimeString(), type: 'alert' as const },
             ...prev
         ].slice(0, 5));
     }
@@ -84,7 +84,7 @@ export const Dashboard: React.FC = () => {
       portRef.current = port;
       setIsConnected(true);
       setHistory([]); 
-      setNotifications(prev => [{ id: Date.now(), text: "ESP32 Device Connected Successfully", time: new Date().toLocaleTimeString(), type: 'info' }, ...prev]);
+      setNotifications(prev => [{ id: Date.now(), text: "ESP32 Device Connected Successfully", time: new Date().toLocaleTimeString(), type: 'info' as const }, ...prev]);
 
       const textDecoder = new TextDecoderStream();
       readableStreamClosedRef.current = port.readable.pipeTo(textDecoder.writable);
@@ -118,7 +118,7 @@ export const Dashboard: React.FC = () => {
       } catch (error) {
         console.error("Error reading from serial port:", error);
         setConnectionError("Lost connection to device.");
-        setNotifications(prev => [{ id: Date.now(), text: "Connection lost to ESP32.", time: new Date().toLocaleTimeString(), type: 'alert' }, ...prev]);
+        setNotifications(prev => [{ id: Date.now(), text: "Connection lost to ESP32.", time: new Date().toLocaleTimeString(), type: 'alert' as const }, ...prev]);
       } finally {
         reader.releaseLock();
       }
@@ -149,7 +149,7 @@ export const Dashboard: React.FC = () => {
     }
     setIsConnected(false);
     setBpm(0);
-    setNotifications(prev => [{ id: Date.now(), text: "Device Disconnected", time: new Date().toLocaleTimeString(), type: 'info' }, ...prev]);
+    setNotifications(prev => [{ id: Date.now(), text: "Device Disconnected", time: new Date().toLocaleTimeString(), type: 'info' as const }, ...prev]);
   };
 
   const downloadData = () => {
@@ -175,10 +175,17 @@ export const Dashboard: React.FC = () => {
     document.body.removeChild(link);
   };
 
+  const clearSession = () => {
+      if(window.confirm("Clear all session history?")) {
+          setHistory([]);
+          setNotifications(prev => [{ id: Date.now(), text: "Session history cleared.", time: new Date().toLocaleTimeString(), type: 'info' as const }, ...prev]);
+      }
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       
-      {/* Top Row: Monitor, Chart, Notifications */}
+      {/* Top Row: Monitor, Chart, Notifications/Data */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* Left Col: Heart Rate Monitor */}
@@ -200,12 +207,13 @@ export const Dashboard: React.FC = () => {
                   <Activity className="w-5 h-5 text-blue-500" />
                   Real-time Analysis
               </h2>
-              <button 
-                onClick={downloadData}
-                className="text-xs flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg transition-colors font-medium"
-              >
-                  <Download className="w-3 h-3" /> Export Data
-              </button>
+              <div className="flex items-center gap-2">
+                 <span className="flex h-3 w-3 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                 </span>
+                 <span className="text-xs text-slate-500 font-medium">Live Feed</span>
+              </div>
            </div>
            
            <div className="h-64 w-full">
@@ -241,29 +249,55 @@ export const Dashboard: React.FC = () => {
            </div>
         </div>
 
-        {/* Right Col: Real-time Notifications */}
-        <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-0 overflow-hidden flex flex-col">
-            <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                <h3 className="font-semibold text-slate-800 flex items-center gap-2">
-                    <Bell className="w-4 h-4 text-slate-500" /> Live Alerts
-                </h3>
-                <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">{notifications.length}</span>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[300px]">
-                {notifications.length === 0 && (
-                    <p className="text-center text-slate-400 text-xs py-4">No recent alerts</p>
-                )}
-                {notifications.map((note) => (
-                    <div key={note.id} className={`p-3 rounded-lg border text-xs ${note.type === 'alert' ? 'bg-red-50 border-red-100' : 'bg-blue-50 border-blue-100'}`}>
-                        <div className="flex justify-between mb-1">
-                            <span className={`font-bold ${note.type === 'alert' ? 'text-red-700' : 'text-blue-700'}`}>
-                                {note.type === 'alert' ? 'Alert' : 'System'}
-                            </span>
-                            <span className="text-slate-400">{note.time}</span>
+        {/* Right Col: Notifications & Data Management */}
+        <div className="lg:col-span-1 flex flex-col gap-6">
+            {/* Notifications */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-0 overflow-hidden flex flex-col flex-1 max-h-[250px]">
+                <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <h3 className="font-semibold text-slate-800 flex items-center gap-2 text-sm">
+                        <Bell className="w-4 h-4 text-slate-500" /> Live Alerts
+                    </h3>
+                    <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">{notifications.length}</span>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                    {notifications.length === 0 && (
+                        <p className="text-center text-slate-400 text-xs py-4">No recent alerts</p>
+                    )}
+                    {notifications.map((note) => (
+                        <div key={note.id} className={`p-3 rounded-lg border text-xs ${note.type === 'alert' ? 'bg-red-50 border-red-100' : 'bg-blue-50 border-blue-100'}`}>
+                            <div className="flex justify-between mb-1">
+                                <span className={`font-bold ${note.type === 'alert' ? 'text-red-700' : 'text-blue-700'}`}>
+                                    {note.type === 'alert' ? 'Alert' : 'System'}
+                                </span>
+                                <span className="text-slate-400">{note.time}</span>
+                            </div>
+                            <p className="text-slate-600 leading-relaxed">{note.text}</p>
                         </div>
-                        <p className="text-slate-600 leading-relaxed">{note.text}</p>
-                    </div>
-                ))}
+                    ))}
+                </div>
+            </div>
+
+            {/* Data Management Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
+                <h3 className="font-semibold text-slate-800 flex items-center gap-2 text-sm mb-3">
+                    <Database className="w-4 h-4 text-slate-500" /> Data & Reports
+                </h3>
+                <div className="space-y-2">
+                    <button 
+                        onClick={downloadData}
+                        className="w-full flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl transition-colors group"
+                    >
+                        <span className="text-xs font-medium text-slate-600">Export Session CSV</span>
+                        <Download className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
+                    </button>
+                    <button 
+                        onClick={clearSession}
+                        className="w-full flex items-center justify-between p-3 bg-white hover:bg-red-50 border border-slate-100 hover:border-red-100 rounded-xl transition-colors group"
+                    >
+                        <span className="text-xs font-medium text-slate-600 group-hover:text-red-600">Clear History</span>
+                        <Trash2 className="w-4 h-4 text-slate-400 group-hover:text-red-600" />
+                    </button>
+                </div>
             </div>
         </div>
       </div>

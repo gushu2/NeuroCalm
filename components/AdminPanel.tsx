@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, FileText, AlertCircle, BarChart3, Download, Trash2, Edit, ChevronRight, Server, Activity, Laptop } from 'lucide-react';
+import { Users, FileText, AlertCircle, BarChart3, Download, Trash2, Edit, ChevronRight, Server, Activity, Laptop, FileDown, ShieldAlert } from 'lucide-react';
 
 export const AdminPanel: React.FC = () => {
   // State for students to allow "Management" simulation
@@ -32,14 +32,12 @@ export const AdminPanel: React.FC = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-2">
         <h1 className="text-2xl font-bold text-slate-800">Admin Control Dashboard</h1>
-        <button 
-            onClick={handleDownloadReport}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-2"
-        >
-            <Download className="w-4 h-4" /> Download Reports
-        </button>
+        <div className="flex items-center gap-2 text-sm text-slate-500 bg-white px-3 py-1.5 rounded-lg border border-slate-200">
+             <span className="w-2 h-2 rounded-full bg-green-500"></span>
+             System Online
+        </div>
       </div>
 
       {/* Operational Flowchart */}
@@ -111,19 +109,33 @@ export const AdminPanel: React.FC = () => {
            </div>
            <p className="text-2xl font-bold text-slate-800">Normal</p>
         </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-           <div className="flex items-center gap-3 mb-2">
-             <div className="p-2 bg-purple-50 rounded-lg text-purple-600"><FileText className="w-5 h-5"/></div>
-             <span className="text-slate-500 text-sm font-medium">Data Logs</span>
+        
+        {/* New Data Management Console Card */}
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+           <div>
+               <div className="flex items-center gap-3 mb-2">
+                 <div className="p-2 bg-purple-50 rounded-lg text-purple-600"><FileDown className="w-5 h-5"/></div>
+                 <span className="text-slate-500 text-sm font-medium">Data Management</span>
+               </div>
+               <p className="text-xs text-slate-400 mb-2">1.2GB Logs Available</p>
            </div>
-           <p className="text-2xl font-bold text-slate-800">1.2GB</p>
+           <button 
+                onClick={handleDownloadReport}
+                className="w-full mt-2 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-200 flex items-center justify-center gap-2 transition-colors"
+           >
+                <Download className="w-3 h-3" /> Download Reports
+           </button>
         </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
           <h2 className="font-semibold text-slate-800">User Data Management</h2>
-          <div className="text-sm text-slate-500">Live Database</div>
+          <div className="flex gap-2">
+              <button className="text-xs flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">
+                  <ShieldAlert className="w-3 h-3" /> Audit Log
+              </button>
+          </div>
         </div>
         <table className="w-full text-left text-sm text-slate-600">
           <thead className="bg-slate-50 text-slate-500 font-medium">
