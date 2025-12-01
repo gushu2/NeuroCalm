@@ -1,5 +1,5 @@
 {
-  "name": "NeuroCalm",
+  "name": "NEUROCALM",
   "description": "A stress detection and control system for student well-being using real-time heart rate monitoring and AI-driven support.",
   "requestFramePermissions": [
     "serial"

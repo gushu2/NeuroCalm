@@ -105,12 +105,15 @@ export const Dashboard: React.FC = () => {
 
             for (const line of lines) {
               const trimmed = line.trim();
-              if (trimmed.startsWith("Heart Rate:")) {
-                 const bpmPart = trimmed.split(":")[1];
-                 if (bpmPart) {
-                    const newBpm = parseFloat(bpmPart);
-                    if (!isNaN(newBpm)) setBpm(Math.round(newBpm));
-                 }
+              
+              // Robust regex matching for "Heart Rate: 72", "BPM:72", "72.00"
+              const match = trimmed.match(/(?:Heart Rate|BPM|Rate):\s*([0-9.]+)/i);
+              
+              if (match && match[1]) {
+                 const newBpm = parseFloat(match[1]);
+                 if (!isNaN(newBpm)) setBpm(Math.round(newBpm));
+              } else if (trimmed.includes("FAILED")) {
+                 setConnectionError("Sensor Init Failed. Check Wiring.");
               }
             }
           }
@@ -126,7 +129,17 @@ export const Dashboard: React.FC = () => {
     } catch (err: any) {
       console.error("Failed to connect:", err);
       setIsConnected(false);
-      setConnectionError("Failed to connect. Please check cables.");
+      
+      let errorMessage = "Failed to connect.";
+      // Check for common "Port already open" errors
+      if (err.name === "NetworkError" || (err.message && err.message.includes("Failed to open"))) {
+          errorMessage = "Port busy. Close Arduino IDE or other tabs.";
+      } else if (err.name === "NotFoundError") {
+          errorMessage = "No device selected.";
+      } else {
+          errorMessage = `Connection error: ${err.message}`;
+      }
+      setConnectionError(errorMessage);
     }
   };
 
