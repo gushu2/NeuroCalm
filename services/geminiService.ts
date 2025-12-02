@@ -14,9 +14,9 @@ export const createChatSession = (): any => {
 
 export const sendMessage = async (chat: any, message: string, currentBpm?: number, stressLevel?: StressLevel): Promise<string> => {
   // Simulate processing time
-  await new Promise(resolve => setTimeout(resolve, 800));
+  await new Promise(resolve => setTimeout(resolve, 600));
 
-  const lowerMsg = message.toLowerCase();
+  const lowerMsg = message.toLowerCase().trim();
 
   // ---------------------------------------------------------
   // 1. Explicit User Commands (High Priority)
@@ -26,17 +26,21 @@ export const sendMessage = async (chat: any, message: string, currentBpm?: numbe
   if (lowerMsg.includes("weightless")) {
     return JSON.stringify({
       type: 'song',
-      title: "Weightless - Marconi Union",
+      title: "Weightless",
+      artist: "Marconi Union",
+      album: "Weightless (Ambient Transmissions Vol. 2)",
       description: "Ambient therapy track designed to lower heart rate.",
       durationStr: "08:00",
       durationSec: 480
     });
   }
 
-  if (lowerMsg.includes("river") || lowerMsg.includes("flow") || lowerMsg.includes("piano")) {
+  if (lowerMsg.includes("river") || lowerMsg.includes("flow") || lowerMsg.includes("piano") || lowerMsg.includes("yiruma")) {
      return JSON.stringify({
       type: 'song',
       title: "River Flows in You",
+      artist: "Yiruma",
+      album: "First Love",
       description: "Gentle piano melody to bring your mind back to center.",
       durationStr: "03:45",
       durationSec: 225
@@ -44,10 +48,14 @@ export const sendMessage = async (chat: any, message: string, currentBpm?: numbe
   }
 
   // Generic Music Request -> Default to Weightless Card
-  if (lowerMsg.includes("music") || lowerMsg.includes("song") || lowerMsg.includes("play") || lowerMsg.includes("listen") || lowerMsg.includes("audio")) {
+  // Expanded keywords list to catch more user intents
+  const musicKeywords = ["music", "song", "play", "listen", "audio", "sound", "hear", "track", "beat", "melody", "tune"];
+  if (musicKeywords.some(keyword => lowerMsg.includes(keyword))) {
      return JSON.stringify({
       type: 'song',
-      title: "Weightless - Marconi Union",
+      title: "Weightless",
+      artist: "Marconi Union",
+      album: "Weightless (Ambient Transmissions Vol. 2)",
       description: "Here is a scientifically proven track to reduce anxiety. Click play to start.",
       durationStr: "08:00",
       durationSec: 480
@@ -65,7 +73,7 @@ export const sendMessage = async (chat: any, message: string, currentBpm?: numbe
     });
   }
 
-  if (lowerMsg.includes("neck")) {
+  if (lowerMsg.includes("neck") || lowerMsg.includes("head") || lowerMsg.includes("shoulder")) {
      return JSON.stringify({
       type: 'yoga',
       title: "Seated Neck Release",
@@ -76,7 +84,8 @@ export const sendMessage = async (chat: any, message: string, currentBpm?: numbe
   }
 
   // Generic Yoga Request -> Default to Neck Release
-  if (lowerMsg.includes("yoga") || lowerMsg.includes("pose") || lowerMsg.includes("exercise") || lowerMsg.includes("stretch")) {
+  const yogaKeywords = ["yoga", "pose", "exercise", "stretch", "workout", "move", "body"];
+  if (yogaKeywords.some(keyword => lowerMsg.includes(keyword))) {
      return JSON.stringify({
       type: 'yoga',
       title: "Seated Neck Release",
@@ -91,7 +100,7 @@ export const sendMessage = async (chat: any, message: string, currentBpm?: numbe
   // ---------------------------------------------------------
   
   if (stressLevel === StressLevel.HIGH) {
-    return "I detect High Stress. I strongly recommend the 'Child's Pose' or listening to 'Weightless' to calm down.";
+    return "I detect High Stress. I strongly recommend the 'Child's Pose' or listening to 'Weightless' to calm down. Type 'play music' or 'show yoga' to begin.";
   }
   
   if (stressLevel === StressLevel.MILD) {
@@ -101,5 +110,6 @@ export const sendMessage = async (chat: any, message: string, currentBpm?: numbe
   // ---------------------------------------------------------
   // 3. Default Fallback
   // ---------------------------------------------------------
-  return "I am in Offline Monitor Mode. I'm tracking your heart rate. You can ask me to 'Play Music' or 'Show Yoga' at any time.";
+  // Make the fallback more actionable
+  return "I'm monitoring your heart rate. You can ask me to 'Play Music', 'Show Yoga', or 'Start Breathing' at any time.";
 };
