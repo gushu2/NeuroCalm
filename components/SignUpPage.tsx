@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
 import { ShieldCheck, User, Mail, Lock, ArrowRight, Loader2, FileBadge } from 'lucide-react';
+import { authService } from '../services/authService';
 
 interface SignUpPageProps {
   onRegister: () => void;
@@ -16,35 +18,108 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear errors when user types
+    if (error) setError('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateEmail = (email: string): boolean => {
+    // 1. Length Check (Max 30 characters total)
+    if (email.length > 30) return false;
+
+    // 2. Format & Character Check
+    // ^[a-zA-Z0-9]       -> Must start with a letter or number
+    // [a-zA-Z0-9._]*     -> Only letters, numbers, dots, and underscores allowed
+    // @gmail\.com$       -> Must end with @gmail.com
+    const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9._]*@gmail\.com$/;
+    
+    if (!emailRegex.test(email)) return false;
+
+    // Double check for spaces (Regex handles it, but explicit check for safety)
+    if (email.includes(' ')) return false;
+
+    return true;
+  };
+
+  const validatePassword = (password: string): boolean => {
+    // 1. Minimum Length
+    if (password.length < 8) return false;
+
+    // 2. No Spaces
+    if (/\s/.test(password)) return false;
+
+    // 3. Complexity Checks
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[@$!%*?&#]/.test(password); // e.g. @, #, $, etc.
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) return false;
+
+    // 4. Weak Password Check (Not easily guessable)
+    const weakPasswords = ["password", "123456", "12345678", "admin123", "qwerty"];
+    if (weakPasswords.some(w => password.toLowerCase().includes(w))) return false;
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
+
+    // Basic Field check
+    if (!formData.name || !formData.usn || !formData.email || !formData.password) {
+      setError('All fields are required');
+      return;
+    }
+
+    // --- EMAIL VALIDATION ---
+    if (!validateEmail(formData.email)) {
+        setError('Please enter a valid Gmail address.');
+        return;
+    }
+
+    // --- PASSWORD VALIDATION ---
+    if (!validatePassword(formData.password)) {
+        setError('Please enter a strong password that meets the criteria.');
+        return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    if (!formData.name || !formData.usn || !formData.email || !formData.password) {
-      setError('Please fill in all fields');
-      return;
-    }
-
     setIsLoading(true);
 
-    // Simulate API registration delay
-    setTimeout(() => {
+    try {
+      const response = await authService.register(
+        formData.name,
+        formData.usn,
+        formData.email,
+        formData.password
+      );
+
+      if (response.success) {
+        setSuccessMsg('Registration successful!');
+        setTimeout(() => {
+            onRegister();
+        }, 1000);
+      } else {
+        setError(response.error || 'Registration failed');
+      }
+    } catch (err) {
+      setError('Connection failed. Please try again.');
+    } finally {
       setIsLoading(false);
-      onRegister(); // Log the user in immediately after signup
-    }, 1500);
+    }
   };
 
   return (
@@ -109,7 +184,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">College Email</label>
+              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Gmail Address</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
@@ -120,9 +195,10 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
                   value={formData.email}
                   onChange={handleChange}
                   className="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                  placeholder="student@college.edu"
+                  placeholder="student@gmail.com"
                 />
               </div>
+              <p className="text-[10px] text-slate-400 mt-1 ml-1">Must be @gmail.com, max 30 chars, no special chars.</p>
             </div>
 
             <div>
@@ -140,6 +216,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
                   placeholder="••••••••"
                 />
               </div>
+               <p className="text-[10px] text-slate-400 mt-1 ml-1">Min 8 chars, 1 Upper, 1 Lower, 1 Number, 1 Special.</p>
             </div>
 
             <div>
@@ -160,9 +237,16 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
             </div>
 
             {error && (
-              <div className="text-red-500 text-xs bg-red-50 border border-red-100 p-3 rounded-lg flex items-center gap-2 animate-fade-in">
+              <div className="text-red-600 text-xs bg-red-50 border border-red-100 p-3 rounded-lg flex items-center gap-2 animate-fade-in font-medium">
                 <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
                 {error}
+              </div>
+            )}
+            
+            {successMsg && (
+              <div className="text-emerald-600 text-xs bg-emerald-50 border border-emerald-100 p-3 rounded-lg flex items-center gap-2 animate-fade-in font-medium">
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                {successMsg}
               </div>
             )}
 
@@ -186,7 +270,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
               Already have an account?{' '}
               <button 
                 onClick={onNavigateToLogin} 
-                className="text-emerald-600 font-semibold hover:text-emerald-700 hover:underline transition-colors"
+                className="text-emerald-600 font-semibold hover:text-emerald-700 hover:text-emerald-700 hover:underline transition-colors"
               >
                 Sign in
               </button>
