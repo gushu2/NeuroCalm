@@ -70,26 +70,26 @@ export const authService = {
 
   /**
    * Simulates Google OAuth 2.0 Flow
+   * Accepts email from the frontend modal simulation
    */
-  googleLogin: async (): Promise<AuthResponse> => {
-    await delay(2000); // Simulate popup and consent screen
+  googleLogin: async (email?: string): Promise<AuthResponse> => {
+    // Note: Delay is handled by the Modal component for better UX
+    
+    const userEmail = email || 'google_user@gmail.com';
+    const userName = userEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
-    // Simulating a successful OAuth response
-    const isSuccess = true;
+    // Determine role (Admin demo simulation)
+    const role = userEmail === 'admin@gmail.com' ? 'admin' : 'student';
 
-    if (isSuccess) {
-      return {
-        success: true,
-        user: {
-          name: 'Google User',
-          email: 'google_user@gmail.com',
-          role: 'student', // Default new users to student
-          token: `oauth2-token-${Date.now()}`
-        }
-      };
-    }
-
-    return { success: false, error: 'OAuth Error: Google Sign-In failed.' };
+    return {
+      success: true,
+      user: {
+        name: userName,
+        email: userEmail,
+        role: role, 
+        token: `oauth2-token-${Date.now()}`
+      }
+    };
   },
 
   /**

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Lock, Mail, ArrowRight, Loader2, Activity, Wifi, CheckCircle2 } from 'lucide-react';
 import { authService } from '../services/authService';
+import { GoogleLoginModal } from './GoogleLoginModal';
 
 interface LoginPageProps {
   onLogin: (role: 'student' | 'admin') => void;
@@ -12,8 +13,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onNavigateToSignu
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
 
   // Strict Google Email Validator (Matching Registration Logic)
   const isValidGoogleEmail = (email: string) => {
@@ -62,12 +63,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onNavigateToSignu
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setError('');
-    setIsGoogleLoading(true);
+  const handleGoogleSuccess = async (googleEmail: string) => {
+    setShowGoogleModal(false);
+    setIsLoading(true); // Show global loader while finishing up
     
     try {
-      const response = await authService.googleLogin();
+      const response = await authService.googleLogin(googleEmail);
       if (response.success && response.user) {
         onLogin(response.user.role);
       } else {
@@ -76,12 +77,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onNavigateToSignu
     } catch (err) {
       setError('Unable to connect to Google OAuth service.');
     } finally {
-      setIsGoogleLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-white flex font-sans">
+      <GoogleLoginModal 
+        isOpen={showGoogleModal} 
+        onClose={() => setShowGoogleModal(false)}
+        onSuccess={handleGoogleSuccess}
+      />
       
       {/* Left Column: Key Features Showcase (Hidden on Mobile) */}
       <div className="hidden lg:flex lg:w-1/2 bg-slate-900 text-white relative flex-col justify-between p-16 overflow-hidden">
@@ -155,11 +161,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onNavigateToSignu
 
            {/* Google Sign In */}
            <button 
-             onClick={handleGoogleLogin}
-             disabled={isLoading || isGoogleLoading}
+             onClick={() => setShowGoogleModal(true)}
+             disabled={isLoading}
              className="w-full bg-white border border-slate-200 text-slate-700 font-semibold py-3 rounded-lg hover:bg-slate-50 transition-all flex items-center justify-center gap-3 mb-6 relative shadow-sm"
            >
-              {isGoogleLoading ? (
+              {isLoading ? (
                  <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
               ) : (
                 <>
@@ -196,7 +202,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onNavigateToSignu
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-slate-50 focus:bg-white"
                     placeholder="student@gmail.com"
-                    disabled={isLoading || isGoogleLoading}
+                    disabled={isLoading}
                  />
                </div>
              </div>
@@ -213,7 +219,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onNavigateToSignu
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-slate-50 focus:bg-white"
                     placeholder="••••••••"
-                    disabled={isLoading || isGoogleLoading}
+                    disabled={isLoading}
                  />
                </div>
              </div>
@@ -224,7 +230,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onNavigateToSignu
                 </div>
              )}
 
-             <button type="submit" disabled={isLoading || isGoogleLoading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-200 disabled:opacity-70 hover:-translate-y-0.5 active:translate-y-0">
+             <button type="submit" disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-200 disabled:opacity-70 hover:-translate-y-0.5 active:translate-y-0">
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Sign In <ArrowRight className="w-4 h-4" /></>}
              </button>
            </form>
