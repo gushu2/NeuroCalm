@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ShieldCheck, User, Mail, Lock, ArrowRight, Loader2, FileBadge } from 'lucide-react';
+import { ShieldCheck, User, Mail, Lock, ArrowRight, Loader2, FileBadge, Activity, CheckCircle2 } from 'lucide-react';
 import { authService } from '../services/authService';
 
 interface SignUpPageProps {
@@ -30,39 +30,23 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
   };
 
   const validateEmail = (email: string): boolean => {
-    // 1. Length Check (Max 30 characters total)
     if (email.length > 30) return false;
-
-    // 2. Format & Character Check
-    // ^[a-zA-Z0-9]       -> Must start with a letter or number
-    // [a-zA-Z0-9._]*     -> Only letters, numbers, dots, and underscores allowed
-    // @gmail\.com$       -> Must end with @gmail.com
     const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9._]*@gmail\.com$/;
-    
     if (!emailRegex.test(email)) return false;
-
-    // Double check for spaces (Regex handles it, but explicit check for safety)
     if (email.includes(' ')) return false;
-
     return true;
   };
 
   const validatePassword = (password: string): boolean => {
-    // 1. Minimum Length
     if (password.length < 8) return false;
-
-    // 2. No Spaces
     if (/\s/.test(password)) return false;
-
-    // 3. Complexity Checks
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
-    const hasSpecialChar = /[@$!%*?&#]/.test(password); // e.g. @, #, $, etc.
+    const hasSpecialChar = /[@$!%*?&#]/.test(password);
 
     if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) return false;
 
-    // 4. Weak Password Check (Not easily guessable)
     const weakPasswords = ["password", "123456", "12345678", "admin123", "qwerty"];
     if (weakPasswords.some(w => password.toLowerCase().includes(w))) return false;
 
@@ -74,19 +58,16 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
     setError('');
     setSuccessMsg('');
 
-    // Basic Field check
     if (!formData.name || !formData.usn || !formData.email || !formData.password) {
       setError('All fields are required');
       return;
     }
 
-    // --- EMAIL VALIDATION ---
     if (!validateEmail(formData.email)) {
         setError('Please enter a valid Gmail address.');
         return;
     }
 
-    // --- PASSWORD VALIDATION ---
     if (!validatePassword(formData.password)) {
         setError('Please enter a strong password that meets the criteria.');
         return;
@@ -111,7 +92,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
         setSuccessMsg('Registration successful!');
         setTimeout(() => {
             onRegister();
-        }, 1000);
+        }, 1500);
       } else {
         setError(response.error || 'Registration failed');
       }
@@ -123,159 +104,199 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-        
-        {/* Header Section */}
-        <div className="bg-gradient-to-br from-emerald-600 to-teal-600 p-8 text-center relative overflow-hidden">
-          {/* Decorative circles */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
-            <div className="absolute -top-10 -left-10 w-32 h-32 bg-white rounded-full"></div>
-            <div className="absolute bottom-10 right-10 w-20 h-20 bg-white rounded-full"></div>
-          </div>
+    <div className="min-h-screen relative flex items-center justify-center font-sans overflow-hidden bg-slate-900">
+      
+      {/* Animated Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+      </div>
 
-          <div className="relative z-10">
-            <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mx-auto mb-3 shadow-inner ring-1 ring-white/30">
-              <ShieldCheck className="w-7 h-7 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Join NeuroCalm</h1>
-            <p className="text-emerald-50 mt-1 text-xs font-medium opacity-90">Create your wellness profile</p>
-          </div>
+      {/* Main Card */}
+      <div className="relative z-10 w-full max-w-5xl flex flex-col lg:flex-row bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden m-4 border border-white/20">
+        
+        {/* Left Side: Brand Visuals */}
+        <div className="lg:w-5/12 bg-gradient-to-br from-slate-900 to-slate-800 text-white p-12 flex flex-col justify-between relative overflow-hidden order-last lg:order-first">
+           <div className="absolute top-0 left-0 w-full h-full">
+               <svg className="w-full h-full opacity-10" viewBox="0 0 100 100" preserveAspectRatio="none">
+                 <defs>
+                   <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                     <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                   </pattern>
+                 </defs>
+                 <rect width="100" height="100" fill="url(#grid)" />
+               </svg>
+           </div>
+           
+           <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-gradient-to-tr from-emerald-400 to-teal-500 p-2.5 rounded-xl shadow-lg shadow-emerald-500/20">
+                    <ShieldCheck className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xl font-bold tracking-wide">NeuroCalm</span>
+              </div>
+              
+              <h1 className="text-3xl font-bold leading-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-teal-200">
+                Join the Future of<br/> Student Wellness.
+              </h1>
+              <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                Create your account to access real-time stress monitoring, AI coaching, and personalized wellness plans designed for academic success.
+              </p>
+
+              <div className="space-y-4">
+                  <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-400"><CheckCircle2 className="w-4 h-4" /></div>
+                      <span>Real-time Heart Rate Analysis</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-400"><CheckCircle2 className="w-4 h-4" /></div>
+                      <span>Personalized Yoga & Music</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-400"><CheckCircle2 className="w-4 h-4" /></div>
+                      <span>Offline First & Privacy Focused</span>
+                  </div>
+              </div>
+           </div>
+
+           <div className="relative z-10 mt-12 text-xs text-slate-500 font-medium">
+              © 2025 NeuroCalm System
+           </div>
         </div>
 
-        {/* Registration Form */}
-        <div className="p-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Full Name</label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                  </div>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                    placeholder="John Doe"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">USN / ID</label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FileBadge className="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                  </div>
-                  <input
-                    type="text"
-                    name="usn"
-                    value={formData.usn}
-                    onChange={handleChange}
-                    className="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                    placeholder="4MW23CS..."
-                  />
-                </div>
-              </div>
+        {/* Right Side: Registration Form */}
+        <div className="lg:w-7/12 p-8 lg:p-12 flex flex-col justify-center bg-white">
+            <div className="mb-6">
+                <h2 className="text-2xl font-bold text-slate-900">Create Account</h2>
+                <p className="text-slate-500 text-sm mt-1">Register with your student details to begin.</p>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Gmail Address</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 ml-1">Full Name</label>
+                        <div className="relative group">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <User className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                            </div>
+                            <input 
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 text-sm font-medium"
+                                placeholder="John Doe"
+                                disabled={isLoading}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 ml-1">USN / ID</label>
+                        <div className="relative group">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <FileBadge className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                            </div>
+                            <input 
+                                type="text"
+                                name="usn"
+                                value={formData.usn}
+                                onChange={handleChange}
+                                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 text-sm font-medium"
+                                placeholder="4MW23CS..."
+                                disabled={isLoading}
+                            />
+                        </div>
+                    </div>
                 </div>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                  placeholder="student@gmail.com"
-                />
-              </div>
-              <p className="text-[10px] text-slate-400 mt-1 ml-1">Must be @gmail.com, max 30 chars, no special chars.</p>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Password</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">Gmail Address</label>
+                    <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                        </div>
+                        <input 
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 text-sm font-medium"
+                            placeholder="student@gmail.com"
+                            disabled={isLoading}
+                        />
+                    </div>
+                    <p className="text-[10px] text-slate-400 ml-1">Must be @gmail.com</p>
                 </div>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                  placeholder="••••••••"
-                />
-              </div>
-               <p className="text-[10px] text-slate-400 mt-1 ml-1">Min 8 chars, 1 Upper, 1 Lower, 1 Number, 1 Special.</p>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Confirm Password</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">Password</label>
+                    <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                        </div>
+                        <input 
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 text-sm font-medium"
+                            placeholder="••••••••"
+                            disabled={isLoading}
+                        />
+                    </div>
+                    <p className="text-[10px] text-slate-400 ml-1">Min 8 chars, 1 Upper, 1 Lower, 1 Number, 1 Special.</p>
                 </div>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                  placeholder="••••••••"
-                />
-              </div>
+
+                <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">Confirm Password</label>
+                    <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                        </div>
+                        <input 
+                            type="password"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 text-sm font-medium"
+                            placeholder="••••••••"
+                            disabled={isLoading}
+                        />
+                    </div>
+                </div>
+
+                {error && (
+                    <div className="p-3 bg-red-50 text-red-600 text-xs font-medium rounded-lg flex items-center gap-2 border border-red-100 animate-fade-in">
+                        <Activity className="w-4 h-4 flex-shrink-0" /> {error}
+                    </div>
+                )}
+                
+                {successMsg && (
+                    <div className="p-3 bg-emerald-50 text-emerald-600 text-xs font-medium rounded-lg flex items-center gap-2 border border-emerald-100 animate-fade-in">
+                        <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> {successMsg}
+                    </div>
+                )}
+
+                <button 
+                    type="submit" 
+                    disabled={isLoading} 
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-200 hover:shadow-emerald-300 transform active:scale-[0.98] mt-2"
+                >
+                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Create Account <ArrowRight className="w-4 h-4" /></>}
+                </button>
+            </form>
+
+            <div className="mt-6 text-center">
+                <p className="text-sm text-slate-500">
+                    Already have an account?{' '}
+                    <button onClick={onNavigateToLogin} className="text-emerald-600 font-bold hover:text-emerald-700 hover:underline transition-all">
+                        Sign In
+                    </button>
+                </p>
             </div>
-
-            {error && (
-              <div className="text-red-600 text-xs bg-red-50 border border-red-100 p-3 rounded-lg flex items-center gap-2 animate-fade-in font-medium">
-                <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                {error}
-              </div>
-            )}
-            
-            {successMsg && (
-              <div className="text-emerald-600 text-xs bg-emerald-50 border border-emerald-100 p-3 rounded-lg flex items-center gap-2 animate-fade-in font-medium">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                {successMsg}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full mt-2 flex items-center justify-center py-3 px-4 border border-transparent rounded-xl shadow-md shadow-emerald-500/20 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0"
-            >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  Create Account <ArrowRight className="ml-2 w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center pt-6 border-t border-slate-100">
-            <p className="text-sm text-slate-500">
-              Already have an account?{' '}
-              <button 
-                onClick={onNavigateToLogin} 
-                className="text-emerald-600 font-semibold hover:text-emerald-700 hover:text-emerald-700 hover:underline transition-colors"
-              >
-                Sign in
-              </button>
-            </p>
-          </div>
         </div>
       </div>
     </div>
