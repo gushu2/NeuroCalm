@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
 import { Loader2, AlertCircle, X } from 'lucide-react';
+import { authService } from '../services/authService';
 
 interface GoogleLoginModalProps {
   isOpen: boolean;
@@ -19,7 +21,7 @@ export const GoogleLoginModal: React.FC<GoogleLoginModalProps> = ({ isOpen, onCl
     return regex.test(email);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setError('');
     
     if (!email.trim()) {
@@ -34,12 +36,18 @@ export const GoogleLoginModal: React.FC<GoogleLoginModalProps> = ({ isOpen, onCl
 
     setStep('processing');
     
-    // Simulate network delay for authentication
-    setTimeout(() => {
-      onSuccess(email);
-      setStep('email'); // Reset for next time
-      setEmail('');
-    }, 1500);
+    try {
+        // Simulate network delay for authentication success
+        setTimeout(() => {
+            onSuccess(email.trim());
+            setStep('email'); // Reset for next time
+            setEmail('');
+        }, 1500);
+
+    } catch (e) {
+        setStep('email');
+        setError("Connection error. Please try again.");
+    }
   };
 
   return (
@@ -75,6 +83,7 @@ export const GoogleLoginModal: React.FC<GoogleLoginModalProps> = ({ isOpen, onCl
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleNext()}
                             className={`w-full px-3 py-3.5 border rounded-md text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all peer ${error ? 'border-red-600' : 'border-slate-300'}`}
                             placeholder=" "
                             autoFocus

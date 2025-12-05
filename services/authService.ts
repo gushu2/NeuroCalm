@@ -1,4 +1,5 @@
 
+
 export interface AuthResponse {
   success: boolean;
   user?: {
@@ -53,6 +54,15 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export const authService = {
   
   /**
+   * Check if a user exists in the database
+   */
+  checkUserExists: async (email: string): Promise<boolean> => {
+    await delay(800); // Simulate network lookup
+    const lowerEmail = email.toLowerCase().trim();
+    return MOCK_USERS.some((u: any) => u.email === lowerEmail);
+  },
+
+  /**
    * Simulates a secure login via Google Identity Platform
    * Requires a valid Google Email and Password
    */
@@ -101,41 +111,36 @@ export const authService = {
    * Accepts email from the frontend modal simulation
    */
   googleLogin: async (email?: string): Promise<AuthResponse> => {
-    // Note: Delay is handled by the Modal component for better UX
-    
     const userEmail = email || 'google_user@gmail.com';
+    const lowerEmail = userEmail.toLowerCase();
     
-    // Check if user exists in our local DB, if not, we can optionally auto-register them or just log them in
-    // For this demo, we'll auto-register them if they are new, or just log them in.
-    let user = MOCK_USERS.find((u: any) => u.email === userEmail.toLowerCase());
+    // Check if user exists in our local DB
+    let user = MOCK_USERS.find((u: any) => u.email === lowerEmail);
     
-    let userName = '';
-    let role = 'student';
-
-    if (user) {
-      userName = user.name;
-      role = user.role;
-    } else {
-      // Auto-generate name from email
-      userName = userEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      role = userEmail === 'admin@gmail.com' ? 'admin' : 'student';
+    // AUTO-REGISTRATION: If user doesn't exist, create them instantly
+    if (!user) {
+      console.log(`[AuthService] New Google User detected. Auto-registering: ${lowerEmail}`);
       
-      // Auto-register google user into our DB so they persist
-      MOCK_USERS.push({
-        email: userEmail.toLowerCase(),
-        password: 'google-oauth-login', // Placeholder
-        name: userName,
-        role: role
-      });
+      const newName = lowerEmail.split('@')[0].split('.').map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+      
+      user = {
+        email: lowerEmail,
+        password: 'google-oauth-managed', // Placeholder
+        name: newName,
+        role: 'student',
+        usn: `GOOGLE-${Date.now().toString().slice(-4)}`
+      };
+      
+      MOCK_USERS.push(user);
       saveUsers();
     }
 
     return {
       success: true,
       user: {
-        name: userName,
-        email: userEmail,
-        role: role as 'student' | 'admin', 
+        name: user.name,
+        email: user.email,
+        role: user.role as 'student' | 'admin', 
         token: `oauth2-token-${Date.now()}`
       }
     };
