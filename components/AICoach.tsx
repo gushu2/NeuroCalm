@@ -46,7 +46,7 @@ const OFFLINE_SOLUTIONS = {
       durationSec: 225
     }
   ],
-  [StressLevel.NORMAL]: [] // Add empty array to prevent undefined errors
+  [StressLevel.NORMAL]: [] 
 };
 
 // Breathing Techniques Configuration
@@ -55,19 +55,19 @@ const BREATHING_TECHNIQUES = {
     title: "Box Breathing",
     description: "Equal duration breathing for focus and calm. Used by Navy SEALs.",
     phases: [
-      { label: "Inhale", duration: 4, scale: 1.25, text: "Breathe In...", color: "bg-teal-500" },
-      { label: "Hold", duration: 4, scale: 1.25, text: "Hold Breath", color: "bg-teal-600" },
-      { label: "Exhale", duration: 4, scale: 1.0, text: "Breathe Out...", color: "bg-teal-400" },
-      { label: "Hold", duration: 4, scale: 1.0, text: "Hold Empty", color: "bg-teal-600" }
+      { label: "Inhale", duration: 4, scale: 1.25, text: "Breathe In...", color: "bg-orange-500" },
+      { label: "Hold", duration: 4, scale: 1.25, text: "Hold Breath", color: "bg-orange-600" },
+      { label: "Exhale", duration: 4, scale: 1.0, text: "Breathe Out...", color: "bg-orange-400" },
+      { label: "Hold", duration: 4, scale: 1.0, text: "Hold Empty", color: "bg-orange-600" }
     ]
   },
   '478': {
     title: "4-7-8 Breathing",
     description: "Dr. Weil's technique for deep relaxation and anxiety reduction.",
     phases: [
-      { label: "Inhale", duration: 4, scale: 1.25, text: "Inhale (Nose)", color: "bg-indigo-500" },
-      { label: "Hold", duration: 7, scale: 1.25, text: "Hold Breath", color: "bg-indigo-600" },
-      { label: "Exhale", duration: 8, scale: 1.0, text: "Exhale (Mouth)", color: "bg-indigo-400" }
+      { label: "Inhale", duration: 4, scale: 1.25, text: "Inhale (Nose)", color: "bg-stone-500" },
+      { label: "Hold", duration: 7, scale: 1.25, text: "Hold Breath", color: "bg-stone-600" },
+      { label: "Exhale", duration: 8, scale: 1.0, text: "Exhale (Mouth)", color: "bg-stone-400" }
     ]
   }
 };
@@ -182,21 +182,21 @@ const BreathingVisual: React.FC<{ type: 'box' | '478' }> = ({ type }) => {
     const currentPhase = config.phases[phaseIndex];
 
     return (
-        <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 w-full mt-2">
+        <div className="bg-stone-50 rounded-xl p-4 border border-stone-200 w-full mt-2">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-slate-800 font-bold flex items-center gap-2">
-                    <Wind className="w-4 h-4 text-slate-500" />
+                <h3 className="text-stone-800 font-bold flex items-center gap-2">
+                    <Wind className="w-4 h-4 text-stone-500" />
                     {config.title}
                 </h3>
-                <span className="text-[10px] text-slate-400 bg-white px-2 py-1 rounded border border-slate-100">
+                <span className="text-[10px] text-stone-400 bg-white px-2 py-1 rounded border border-stone-100">
                     {isActive ? 'Session Active' : 'Ready'}
                 </span>
             </div>
             
             <div className="relative h-48 flex items-center justify-center mb-4 overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                    <div className="w-32 h-32 rounded-full border-4 border-slate-400"></div>
-                    <div className="absolute w-24 h-24 rounded-full border-4 border-slate-400"></div>
+                    <div className="w-32 h-32 rounded-full border-4 border-stone-400"></div>
+                    <div className="absolute w-24 h-24 rounded-full border-4 border-stone-400"></div>
                 </div>
 
                 <div 
@@ -213,7 +213,7 @@ const BreathingVisual: React.FC<{ type: 'box' | '478' }> = ({ type }) => {
                 </div>
 
                 <div className="absolute bottom-2 text-center w-full">
-                    <p className={`text-lg font-bold transition-all duration-300 ${isActive ? 'text-slate-700' : 'text-slate-400'}`}>
+                    <p className={`text-lg font-bold transition-all duration-300 ${isActive ? 'text-stone-700' : 'text-stone-400'}`}>
                         {isActive ? currentPhase.text : "Press Start"}
                     </p>
                 </div>
@@ -225,14 +225,14 @@ const BreathingVisual: React.FC<{ type: 'box' | '478' }> = ({ type }) => {
                     className={`flex-1 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all ${
                         isActive 
                         ? 'bg-red-50 text-red-600 hover:bg-red-100' 
-                        : 'bg-slate-800 text-white hover:bg-slate-900 shadow-md'
+                        : 'bg-stone-800 text-white hover:bg-stone-900 shadow-md'
                     }`}
                 >
                     {isActive ? <><Pause className="w-4 h-4"/> Pause</> : <><Play className="w-4 h-4"/> Start Exercise</>}
                 </button>
             </div>
             
-            <p className="text-xs text-slate-500 mt-3 text-center leading-relaxed px-2">
+            <p className="text-xs text-stone-500 mt-3 text-center leading-relaxed px-2">
                 {config.description}
             </p>
         </div>
@@ -546,7 +546,7 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
             
             if (data.type === 'breathing') {
                 return (
-                    <div className="bg-white rounded-xl p-3 mt-2 border border-slate-200 shadow-md w-full max-w-sm">
+                    <div className="bg-white rounded-xl p-3 mt-2 border border-stone-200 shadow-md w-full max-w-sm">
                          <BreathingVisual type={data.technique} />
                     </div>
                 );
@@ -558,20 +558,20 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
                 const currentProgress = progress[msg.id] || 0;
 
                 return (
-                    <div className="bg-white rounded-xl p-4 mt-2 border border-slate-200 shadow-md w-full max-w-sm">
+                    <div className="bg-white rounded-xl p-4 mt-2 border border-stone-200 shadow-md w-full max-w-sm">
                         <div className="flex items-center gap-3 mb-3">
-                            <div className={`p-2 rounded-full ${isYoga ? 'bg-orange-100 text-orange-600' : 'bg-purple-100 text-purple-600'}`}>
+                            <div className={`p-2 rounded-full ${isYoga ? 'bg-orange-100 text-orange-600' : 'bg-stone-100 text-stone-600'}`}>
                                 {isYoga ? <Activity className="w-5 h-5" /> : <Music className="w-5 h-5" />}
                             </div>
                             <div>
-                                <span className="text-xs font-bold uppercase text-slate-400 tracking-wider">Recommended Solution</span>
-                                <h3 className="font-bold text-slate-800 text-lg leading-tight">{data.title}</h3>
-                                {data.artist && <p className="text-xs text-slate-500 font-medium">{data.artist}</p>}
-                                {data.album && <p className="text-[10px] text-slate-400 italic mb-2 flex items-center gap-1"><Disc className="w-3 h-3"/> {data.album}</p>}
+                                <span className="text-xs font-bold uppercase text-stone-400 tracking-wider">Recommended Solution</span>
+                                <h3 className="font-bold text-stone-800 text-lg leading-tight">{data.title}</h3>
+                                {data.artist && <p className="text-xs text-stone-500 font-medium">{data.artist}</p>}
+                                {data.album && <p className="text-[10px] text-stone-400 italic mb-2 flex items-center gap-1"><Disc className="w-3 h-3"/> {data.album}</p>}
                             </div>
                         </div>
 
-                        <p className="text-sm text-slate-600 mb-4">{data.description}</p>
+                        <p className="text-sm text-stone-600 mb-4">{data.description}</p>
                         
                         {isYoga ? (
                             <div className="bg-orange-50 p-3 rounded-lg border border-orange-100">
@@ -583,35 +583,35 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-purple-50 p-3 rounded-lg border border-purple-100">
+                            <div className="bg-stone-50 p-3 rounded-lg border border-stone-200">
                                 <div className="flex items-center gap-3">
                                     <button 
                                         onClick={() => toggleAudio(msg.id, data.title)}
-                                        className="w-10 h-10 flex items-center justify-center bg-purple-600 text-white rounded-full hover:bg-purple-700 transition shadow-sm"
+                                        className="w-10 h-10 flex items-center justify-center bg-orange-600 text-white rounded-full hover:bg-orange-700 transition shadow-sm"
                                     >
                                         {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-1" />}
                                     </button>
                                     <div className="flex-1">
-                                        <div className="flex justify-between text-xs text-purple-700 mb-1 font-medium">
+                                        <div className="flex justify-between text-xs text-stone-700 mb-1 font-medium">
                                             <span>{isPlaying ? 'Playing Audio...' : 'Paused'}</span>
                                             <span>{data.durationStr}</span>
                                         </div>
-                                        <div className="w-full bg-purple-200 rounded-full h-1.5 overflow-hidden">
+                                        <div className="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
                                             <div 
-                                                className="bg-purple-600 h-full transition-all duration-100 ease-linear"
+                                                className="bg-orange-600 h-full transition-all duration-100 ease-linear"
                                                 style={{ width: `${currentProgress}%` }}
                                             ></div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="mt-2 flex items-center gap-1 text-[10px] text-purple-400">
+                                <div className="mt-2 flex items-center gap-1 text-[10px] text-stone-400">
                                     <Volume2 className="w-3 h-3" />
                                     <span>Generating offline soothing audio...</span>
                                 </div>
                                 
                                 {/* Volume Slider Control */}
-                                <div className="mt-3 pt-2 border-t border-purple-100 flex items-center gap-2">
-                                     <div className="text-purple-400">
+                                <div className="mt-3 pt-2 border-t border-stone-200 flex items-center gap-2">
+                                     <div className="text-stone-400">
                                          {volume === 0 ? <VolumeX className="w-3.5 h-3.5" /> : <Volume1 className="w-3.5 h-3.5" />}
                                      </div>
                                      <input 
@@ -621,7 +621,7 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
                                         step="0.05"
                                         value={volume}
                                         onChange={(e) => setVolume(parseFloat(e.target.value))}
-                                        className="w-full h-1.5 bg-purple-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-purple-600 [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:bg-purple-700 transition-colors"
+                                        className="w-full h-1.5 bg-stone-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-orange-600 [&::-webkit-slider-thumb]:rounded-full hover:[&::-webkit-slider-thumb]:bg-orange-700 transition-colors"
                                      />
                                 </div>
                             </div>
@@ -647,46 +647,46 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[600px]">
-      <div className="bg-gradient-to-r from-teal-600 to-emerald-600 p-4 flex items-center gap-3 text-white shadow-md z-10">
+    <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden flex flex-col h-[600px]">
+      <div className="bg-gradient-to-r from-orange-600 to-amber-700 p-4 flex items-center gap-3 text-white shadow-md z-10">
         <div className="bg-white/20 p-2 rounded-lg">
           <Bot className="w-6 h-6" />
         </div>
         <div>
           <h2 className="font-bold text-lg">Wellness Assistant</h2>
-          <p className="text-teal-100 text-xs">Real-time Stress Monitoring • Audio & Video Guides</p>
+          <p className="text-orange-100 text-xs">Real-time Stress Monitoring • Audio & Video Guides</p>
         </div>
       </div>
 
-      <div className="bg-slate-50 border-b border-slate-100 px-4 py-3">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Quick Relief Tools</p>
+      <div className="bg-stone-50 border-b border-stone-100 px-4 py-3">
+          <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2">Quick Relief Tools</p>
           <div className="flex gap-2">
               <button 
                 onClick={() => triggerBreathing('box')}
-                className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 transition-colors shadow-sm"
+                className="flex items-center gap-2 px-3 py-2 bg-white border border-stone-200 rounded-lg text-xs font-medium text-stone-700 hover:bg-orange-50 hover:text-orange-700 hover:border-orange-200 transition-colors shadow-sm"
               >
                   <Wind className="w-3.5 h-3.5" /> Box Breathing
               </button>
               <button 
                 onClick={() => triggerBreathing('478')}
-                className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 transition-colors shadow-sm"
+                className="flex items-center gap-2 px-3 py-2 bg-white border border-stone-200 rounded-lg text-xs font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-700 hover:border-stone-300 transition-colors shadow-sm"
               >
                   <Timer className="w-3.5 h-3.5" /> 4-7-8 Breathing
               </button>
           </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-stone-50">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[90%] ${
               msg.role === 'user' 
-                ? 'bg-teal-600 text-white rounded-2xl rounded-tr-none px-4 py-3' 
+                ? 'bg-orange-600 text-white rounded-2xl rounded-tr-none px-4 py-3' 
                 : 'w-full'
             }`}>
                <div className={`${msg.role === 'user' ? '' : 'flex flex-col items-start'}`}>
                   {msg.role === 'model' && !msg.text.startsWith('{') && (
-                      <div className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm mb-1">
+                      <div className="bg-white border border-stone-200 text-stone-700 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm mb-1">
                           {renderMessageContent(msg)}
                       </div>
                   )}
@@ -696,7 +696,7 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
                    {msg.role === 'user' && renderMessageContent(msg)}
                </div>
                
-              <p className={`text-[10px] mt-1 opacity-60 text-right ${msg.role === 'user' ? 'text-teal-100' : 'text-slate-400'}`}>
+              <p className={`text-[10px] mt-1 opacity-60 text-right ${msg.role === 'user' ? 'text-orange-100' : 'text-stone-400'}`}>
                 {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
             </div>
@@ -704,16 +704,16 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
         ))}
         {isLoading && (
             <div className="flex justify-start animate-pulse">
-                <div className="bg-slate-200 rounded-full h-8 w-12 flex items-center justify-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-slate-400 rounded-full"></div>
-                    <div className="w-1.5 h-1.5 bg-slate-400 rounded-full"></div>
+                <div className="bg-stone-200 rounded-full h-8 w-12 flex items-center justify-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-stone-400 rounded-full"></div>
+                    <div className="w-1.5 h-1.5 bg-stone-400 rounded-full"></div>
                 </div>
             </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 bg-white border-t border-slate-100">
+      <div className="p-4 bg-white border-t border-stone-100">
         <div className="relative">
           <input
             type="text"
@@ -721,13 +721,13 @@ export const AICoach: React.FC<AICoachProps> = ({ currentBpm, stressLevel }) => 
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask for a song or yoga pose..."
-            className="w-full pl-4 pr-12 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all outline-none text-slate-700"
+            className="w-full pl-4 pr-12 py-3 bg-stone-100 border-none rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all outline-none text-stone-700"
             disabled={isLoading}
           />
           <button 
             onClick={handleSend}
             disabled={isLoading || !input.trim()}
-            className="absolute right-2 top-2 p-1.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="absolute right-2 top-2 p-1.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Send className="w-4 h-4" />
           </button>

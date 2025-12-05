@@ -214,35 +214,35 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Middle Col: Live Chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 relative">
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-stone-200 p-6 relative">
            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-slate-800 font-semibold text-lg flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-blue-500" />
+              <h2 className="text-stone-800 font-semibold text-lg flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-orange-500" />
                   Real-time Analysis
               </h2>
               <div className="flex items-center gap-2">
                  <span className="flex h-3 w-3 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
                  </span>
-                 <span className="text-xs text-slate-500 font-medium">Live Feed</span>
+                 <span className="text-xs text-stone-500 font-medium">Live Feed</span>
               </div>
            </div>
            
            <div className="h-64 w-full">
              <ResponsiveContainer width="100%" height="100%">
                <LineChart data={history}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e7e5e4" />
                   <XAxis 
                     dataKey="timestamp" 
-                    tick={{fontSize: 12, fill: '#94a3b8'}} 
+                    tick={{fontSize: 12, fill: '#a8a29e'}} 
                     tickLine={false}
                     axisLine={false}
                     interval={5}
                   />
                   <YAxis 
                     domain={[40, 160]} 
-                    tick={{fontSize: 12, fill: '#94a3b8'}} 
+                    tick={{fontSize: 12, fill: '#a8a29e'}} 
                     tickLine={false}
                     axisLine={false}
                     width={30}
@@ -251,10 +251,10 @@ export const Dashboard: React.FC = () => {
                   <Line 
                     type="monotone" 
                     dataKey="bpm" 
-                    stroke="#3b82f6" 
+                    stroke="#ea580c" 
                     strokeWidth={3} 
                     dot={false}
-                    activeDot={{ r: 6, fill: '#2563eb' }}
+                    activeDot={{ r: 6, fill: '#c2410c' }}
                     isAnimationActive={false}
                   />
                </LineChart>
@@ -265,50 +265,50 @@ export const Dashboard: React.FC = () => {
         {/* Right Col: Notifications & Data Management */}
         <div className="lg:col-span-1 flex flex-col gap-6">
             {/* Notifications */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-0 overflow-hidden flex flex-col flex-1 max-h-[250px]">
-                <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                    <h3 className="font-semibold text-slate-800 flex items-center gap-2 text-sm">
-                        <Bell className="w-4 h-4 text-slate-500" /> Live Alerts
+            <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-0 overflow-hidden flex flex-col flex-1 max-h-[250px]">
+                <div className="p-4 border-b border-stone-100 bg-stone-50 flex justify-between items-center">
+                    <h3 className="font-semibold text-stone-800 flex items-center gap-2 text-sm">
+                        <Bell className="w-4 h-4 text-stone-500" /> Live Alerts
                     </h3>
                     <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">{notifications.length}</span>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
                     {notifications.length === 0 && (
-                        <p className="text-center text-slate-400 text-xs py-4">No recent alerts</p>
+                        <p className="text-center text-stone-400 text-xs py-4">No recent alerts</p>
                     )}
                     {notifications.map((note) => (
-                        <div key={note.id} className={`p-3 rounded-lg border text-xs ${note.type === 'alert' ? 'bg-red-50 border-red-100' : 'bg-blue-50 border-blue-100'}`}>
+                        <div key={note.id} className={`p-3 rounded-lg border text-xs ${note.type === 'alert' ? 'bg-red-50 border-red-100' : 'bg-orange-50 border-orange-100'}`}>
                             <div className="flex justify-between mb-1">
-                                <span className={`font-bold ${note.type === 'alert' ? 'text-red-700' : 'text-blue-700'}`}>
+                                <span className={`font-bold ${note.type === 'alert' ? 'text-red-700' : 'text-orange-700'}`}>
                                     {note.type === 'alert' ? 'Alert' : 'System'}
                                 </span>
-                                <span className="text-slate-400">{note.time}</span>
+                                <span className="text-stone-400">{note.time}</span>
                             </div>
-                            <p className="text-slate-600 leading-relaxed">{note.text}</p>
+                            <p className="text-stone-600 leading-relaxed">{note.text}</p>
                         </div>
                     ))}
                 </div>
             </div>
 
             {/* Data Management Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
-                <h3 className="font-semibold text-slate-800 flex items-center gap-2 text-sm mb-3">
-                    <Database className="w-4 h-4 text-slate-500" /> Data & Reports
+            <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-4">
+                <h3 className="font-semibold text-stone-800 flex items-center gap-2 text-sm mb-3">
+                    <Database className="w-4 h-4 text-stone-500" /> Data & Reports
                 </h3>
                 <div className="space-y-2">
                     <button 
                         onClick={downloadData}
-                        className="w-full flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl transition-colors group"
+                        className="w-full flex items-center justify-between p-3 bg-stone-50 hover:bg-stone-100 border border-stone-100 rounded-xl transition-colors group"
                     >
-                        <span className="text-xs font-medium text-slate-600">Export Session CSV</span>
-                        <Download className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
+                        <span className="text-xs font-medium text-stone-600">Export Session CSV</span>
+                        <Download className="w-4 h-4 text-stone-400 group-hover:text-orange-600" />
                     </button>
                     <button 
                         onClick={clearSession}
-                        className="w-full flex items-center justify-between p-3 bg-white hover:bg-red-50 border border-slate-100 hover:border-red-100 rounded-xl transition-colors group"
+                        className="w-full flex items-center justify-between p-3 bg-white hover:bg-red-50 border border-stone-100 hover:border-red-100 rounded-xl transition-colors group"
                     >
-                        <span className="text-xs font-medium text-slate-600 group-hover:text-red-600">Clear History</span>
-                        <Trash2 className="w-4 h-4 text-slate-400 group-hover:text-red-600" />
+                        <span className="text-xs font-medium text-stone-600 group-hover:text-red-600">Clear History</span>
+                        <Trash2 className="w-4 h-4 text-stone-400 group-hover:text-red-600" />
                     </button>
                 </div>
             </div>
@@ -324,32 +324,32 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Footer: Key Features Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-slate-200">
-         <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-start gap-4">
-            <div className="p-3 bg-blue-50 rounded-lg text-blue-600">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-stone-200">
+         <div className="bg-white p-5 rounded-xl border border-stone-100 shadow-sm flex items-start gap-4">
+            <div className="p-3 bg-orange-50 rounded-lg text-orange-600">
                 <Zap className="w-6 h-6" />
             </div>
             <div>
-                <h4 className="font-bold text-slate-800">Real-time Analysis</h4>
-                <p className="text-sm text-slate-500 mt-1">Instant heart rate processing via ESP32 sensors with ms-latency.</p>
+                <h4 className="font-bold text-stone-800">Real-time Analysis</h4>
+                <p className="text-sm text-stone-500 mt-1">Instant heart rate processing via ESP32 sensors with ms-latency.</p>
             </div>
          </div>
-         <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-start gap-4">
-            <div className="p-3 bg-purple-50 rounded-lg text-purple-600">
+         <div className="bg-white p-5 rounded-xl border border-stone-100 shadow-sm flex items-start gap-4">
+            <div className="p-3 bg-amber-50 rounded-lg text-amber-600">
                 <Brain className="w-6 h-6" />
             </div>
             <div>
-                <h4 className="font-bold text-slate-800">AI Coaching</h4>
-                <p className="text-sm text-slate-500 mt-1">Personalized stress relief with yoga and music recommendations.</p>
+                <h4 className="font-bold text-stone-800">AI Coaching</h4>
+                <p className="text-sm text-stone-500 mt-1">Personalized stress relief with yoga and music recommendations.</p>
             </div>
          </div>
-         <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-start gap-4">
-            <div className="p-3 bg-emerald-50 rounded-lg text-emerald-600">
+         <div className="bg-white p-5 rounded-xl border border-stone-100 shadow-sm flex items-start gap-4">
+            <div className="p-3 bg-stone-100 rounded-lg text-stone-600">
                 <Shield className="w-6 h-6" />
             </div>
             <div>
-                <h4 className="font-bold text-slate-800">Privacy First</h4>
-                <p className="text-sm text-slate-500 mt-1">Your physiological data is processed locally and never stored on cloud.</p>
+                <h4 className="font-bold text-stone-800">Privacy First</h4>
+                <p className="text-sm text-stone-500 mt-1">Your physiological data is processed locally and never stored on cloud.</p>
             </div>
          </div>
       </div>

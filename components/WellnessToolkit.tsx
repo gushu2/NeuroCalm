@@ -23,8 +23,8 @@ export const WellnessToolkit: React.FC<WellnessToolkitProps> = ({ stressLevel })
           {
             title: "Song: Weightless",
             desc: "Marconi Union (Ambient).",
-            icon: <Music className="w-6 h-6 text-purple-500" />,
-            color: "bg-purple-50 border-purple-100",
+            icon: <Music className="w-6 h-6 text-stone-600" />,
+            color: "bg-stone-100 border-stone-200",
             type: "Song"
           },
           {
@@ -40,22 +40,22 @@ export const WellnessToolkit: React.FC<WellnessToolkitProps> = ({ stressLevel })
           {
             title: "Yoga: Cat-Cow Stretch",
             desc: "Relieves torso and neck tension.",
-            icon: <Activity className="w-6 h-6 text-teal-500" />,
-            color: "bg-teal-50 border-teal-100",
+            icon: <Activity className="w-6 h-6 text-amber-500" />,
+            color: "bg-amber-50 border-amber-100",
             type: "Yoga"
           },
           {
             title: "Song: River Flows in You",
             desc: "Yiruma - Gentle Piano.",
-            icon: <Music className="w-6 h-6 text-indigo-500" />,
-            color: "bg-indigo-50 border-indigo-100",
+            icon: <Music className="w-6 h-6 text-orange-400" />,
+            color: "bg-orange-50 border-orange-100",
             type: "Song"
           },
           {
             title: "Yoga: Standing Forward",
             desc: "Calms the nervous system.",
-            icon: <Activity className="w-6 h-6 text-teal-500" />,
-            color: "bg-teal-50 border-teal-100",
+            icon: <Activity className="w-6 h-6 text-amber-500" />,
+            color: "bg-amber-50 border-amber-100",
             type: "Yoga"
           }
         ];
@@ -64,22 +64,22 @@ export const WellnessToolkit: React.FC<WellnessToolkitProps> = ({ stressLevel })
           {
             title: "Song: Lo-Fi Beats",
             desc: "Chill beats for studying.",
-            icon: <Music className="w-6 h-6 text-slate-500" />,
-            color: "bg-slate-50 border-slate-200",
+            icon: <Music className="w-6 h-6 text-stone-500" />,
+            color: "bg-stone-50 border-stone-200",
             type: "Song"
           },
           {
             title: "Yoga: Tree Pose",
             desc: "Improves balance and focus.",
-            icon: <Activity className="w-6 h-6 text-emerald-500" />,
-            color: "bg-emerald-50 border-emerald-100",
+            icon: <Activity className="w-6 h-6 text-orange-500" />,
+            color: "bg-orange-50 border-orange-100",
             type: "Yoga"
           },
           {
             title: "Song: Nature Sounds",
             desc: "Rain sounds for deep work.",
-            icon: <Music className="w-6 h-6 text-slate-500" />,
-            color: "bg-slate-50 border-slate-200",
+            icon: <Music className="w-6 h-6 text-stone-500" />,
+            color: "bg-stone-50 border-stone-200",
             type: "Song"
           }
         ];
@@ -89,11 +89,11 @@ export const WellnessToolkit: React.FC<WellnessToolkitProps> = ({ stressLevel })
   const recommendations = getRecommendations();
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-slate-800 font-bold text-xl">Wellness Solutions</h2>
-          <p className="text-slate-500 text-sm mt-1">Recommended Songs & Yoga Positions</p>
+          <h2 className="text-stone-800 font-bold text-xl">Wellness Solutions</h2>
+          <p className="text-stone-500 text-sm mt-1">Recommended Songs & Yoga Positions</p>
         </div>
         <span className={`px-3 py-1 rounded-full text-sm font-medium ${
             stressLevel === StressLevel.HIGH ? 'bg-red-100 text-red-700' : 
@@ -114,8 +114,8 @@ export const WellnessToolkit: React.FC<WellnessToolkitProps> = ({ stressLevel })
                 <div className="flex items-center gap-2">
                     <span className="text-[10px] font-bold uppercase tracking-wider opacity-50">{rec.type}</span>
                 </div>
-                <h3 className="font-semibold text-slate-800">{rec.title}</h3>
-                <p className="text-sm text-slate-600 mt-1 leading-snug">{rec.desc}</p>
+                <h3 className="font-semibold text-stone-800">{rec.title}</h3>
+                <p className="text-sm text-stone-600 mt-1 leading-snug">{rec.desc}</p>
             </div>
           </div>
         ))}

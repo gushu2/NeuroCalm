@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ShieldCheck, User, Mail, Lock, ArrowRight, Loader2, FileBadge, Activity, CheckCircle2 } from 'lucide-react';
 import { authService } from '../services/authService';
@@ -104,13 +103,13 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center font-sans overflow-hidden bg-slate-900">
+    <div className="min-h-screen relative flex items-center justify-center font-sans overflow-hidden bg-stone-900">
       
       {/* Animated Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-stone-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
       </div>
 
@@ -118,7 +117,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
       <div className="relative z-10 w-full max-w-5xl flex flex-col lg:flex-row bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden m-4 border border-white/20">
         
         {/* Left Side: Brand Visuals */}
-        <div className="lg:w-5/12 bg-gradient-to-br from-slate-900 to-slate-800 text-white p-12 flex flex-col justify-between relative overflow-hidden order-last lg:order-first">
+        <div className="lg:w-5/12 bg-gradient-to-br from-stone-900 to-stone-800 text-white p-12 flex flex-col justify-between relative overflow-hidden order-last lg:order-first">
            <div className="absolute top-0 left-0 w-full h-full">
                <svg className="w-full h-full opacity-10" viewBox="0 0 100 100" preserveAspectRatio="none">
                  <defs>
@@ -132,36 +131,36 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
            
            <div className="relative z-10">
               <div className="flex items-center gap-3 mb-6">
-                <div className="bg-gradient-to-tr from-emerald-400 to-teal-500 p-2.5 rounded-xl shadow-lg shadow-emerald-500/20">
+                <div className="bg-gradient-to-tr from-orange-400 to-amber-500 p-2.5 rounded-xl shadow-lg shadow-orange-500/20">
                     <ShieldCheck className="w-6 h-6 text-white" />
                 </div>
                 <span className="text-xl font-bold tracking-wide">NeuroCalm</span>
               </div>
               
-              <h1 className="text-3xl font-bold leading-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-teal-200">
+              <h1 className="text-3xl font-bold leading-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-orange-200 to-amber-200">
                 Join the Future of<br/> Student Wellness.
               </h1>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6">
+              <p className="text-stone-400 text-sm leading-relaxed mb-6">
                 Create your account to access real-time stress monitoring, AI coaching, and personalized wellness plans designed for academic success.
               </p>
 
               <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-400"><CheckCircle2 className="w-4 h-4" /></div>
+                  <div className="flex items-center gap-3 text-sm text-stone-300">
+                      <div className="p-1 rounded-full bg-orange-500/20 text-orange-400"><CheckCircle2 className="w-4 h-4" /></div>
                       <span>Real-time Heart Rate Analysis</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-400"><CheckCircle2 className="w-4 h-4" /></div>
+                  <div className="flex items-center gap-3 text-sm text-stone-300">
+                      <div className="p-1 rounded-full bg-orange-500/20 text-orange-400"><CheckCircle2 className="w-4 h-4" /></div>
                       <span>Personalized Yoga & Music</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-400"><CheckCircle2 className="w-4 h-4" /></div>
+                  <div className="flex items-center gap-3 text-sm text-stone-300">
+                      <div className="p-1 rounded-full bg-orange-500/20 text-orange-400"><CheckCircle2 className="w-4 h-4" /></div>
                       <span>Offline First & Privacy Focused</span>
                   </div>
               </div>
            </div>
 
-           <div className="relative z-10 mt-12 text-xs text-slate-500 font-medium">
+           <div className="relative z-10 mt-12 text-xs text-stone-500 font-medium">
               © 2025 NeuroCalm System
            </div>
         </div>
@@ -169,24 +168,24 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
         {/* Right Side: Registration Form */}
         <div className="lg:w-7/12 p-8 lg:p-12 flex flex-col justify-center bg-white">
             <div className="mb-6">
-                <h2 className="text-2xl font-bold text-slate-900">Create Account</h2>
-                <p className="text-slate-500 text-sm mt-1">Register with your student details to begin.</p>
+                <h2 className="text-2xl font-bold text-stone-900">Create Account</h2>
+                <p className="text-stone-500 text-sm mt-1">Register with your student details to begin.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 ml-1">Full Name</label>
+                        <label className="text-xs font-semibold text-stone-700 ml-1">Full Name</label>
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <User className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                                <User className="h-5 w-5 text-stone-400 group-focus-within:text-orange-500 transition-colors" />
                             </div>
                             <input 
                                 type="text"
                                 name="name"
                                 value={formData.name}
                                 onChange={handleChange}
-                                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 text-sm font-medium"
+                                className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-stone-400 text-sm font-medium"
                                 placeholder="John Doe"
                                 disabled={isLoading}
                             />
@@ -194,17 +193,17 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 ml-1">USN / ID</label>
+                        <label className="text-xs font-semibold text-stone-700 ml-1">USN / ID</label>
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <FileBadge className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                                <FileBadge className="h-5 w-5 text-stone-400 group-focus-within:text-orange-500 transition-colors" />
                             </div>
                             <input 
                                 type="text"
                                 name="usn"
                                 value={formData.usn}
                                 onChange={handleChange}
-                                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 text-sm font-medium"
+                                className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-stone-400 text-sm font-medium"
                                 placeholder="4MW23CS..."
                                 disabled={isLoading}
                             />
@@ -213,55 +212,55 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 ml-1">Gmail Address</label>
+                    <label className="text-xs font-semibold text-stone-700 ml-1">Gmail Address</label>
                     <div className="relative group">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                            <Mail className="h-5 w-5 text-stone-400 group-focus-within:text-orange-500 transition-colors" />
                         </div>
                         <input 
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 text-sm font-medium"
+                            className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-stone-400 text-sm font-medium"
                             placeholder="student@gmail.com"
                             disabled={isLoading}
                         />
                     </div>
-                    <p className="text-[10px] text-slate-400 ml-1">Must be @gmail.com</p>
+                    <p className="text-[10px] text-stone-400 ml-1">Must be @gmail.com</p>
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 ml-1">Password</label>
+                    <label className="text-xs font-semibold text-stone-700 ml-1">Password</label>
                     <div className="relative group">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                            <Lock className="h-5 w-5 text-stone-400 group-focus-within:text-orange-500 transition-colors" />
                         </div>
                         <input 
                             type="password"
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
-                            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 text-sm font-medium"
+                            className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-stone-400 text-sm font-medium"
                             placeholder="••••••••"
                             disabled={isLoading}
                         />
                     </div>
-                    <p className="text-[10px] text-slate-400 ml-1">Min 8 chars, 1 Upper, 1 Lower, 1 Number, 1 Special.</p>
+                    <p className="text-[10px] text-stone-400 ml-1">Min 8 chars, 1 Upper, 1 Lower, 1 Number, 1 Special.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 ml-1">Confirm Password</label>
+                    <label className="text-xs font-semibold text-stone-700 ml-1">Confirm Password</label>
                     <div className="relative group">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                            <Lock className="h-5 w-5 text-stone-400 group-focus-within:text-orange-500 transition-colors" />
                         </div>
                         <input 
                             type="password"
                             name="confirmPassword"
                             value={formData.confirmPassword}
                             onChange={handleChange}
-                            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 text-sm font-medium"
+                            className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-stone-400 text-sm font-medium"
                             placeholder="••••••••"
                             disabled={isLoading}
                         />
@@ -275,7 +274,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
                 )}
                 
                 {successMsg && (
-                    <div className="p-3 bg-emerald-50 text-emerald-600 text-xs font-medium rounded-lg flex items-center gap-2 border border-emerald-100 animate-fade-in">
+                    <div className="p-3 bg-orange-50 text-orange-600 text-xs font-medium rounded-lg flex items-center gap-2 border border-orange-100 animate-fade-in">
                         <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> {successMsg}
                     </div>
                 )}
@@ -283,16 +282,16 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onRegister, onNavigateTo
                 <button 
                     type="submit" 
                     disabled={isLoading} 
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-200 hover:shadow-emerald-300 transform active:scale-[0.98] mt-2"
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-200 hover:shadow-orange-300 transform active:scale-[0.98] mt-2"
                 >
                     {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Create Account <ArrowRight className="w-4 h-4" /></>}
                 </button>
             </form>
 
             <div className="mt-6 text-center">
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-stone-500">
                     Already have an account?{' '}
-                    <button onClick={onNavigateToLogin} className="text-emerald-600 font-bold hover:text-emerald-700 hover:underline transition-all">
+                    <button onClick={onNavigateToLogin} className="text-orange-600 font-bold hover:text-orange-700 hover:underline transition-all">
                         Sign In
                     </button>
                 </p>

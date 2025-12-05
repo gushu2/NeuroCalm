@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Loader2, AlertCircle, X } from 'lucide-react';
 import { authService } from '../services/authService';
@@ -17,7 +16,7 @@ export const GoogleLoginModal: React.FC<GoogleLoginModalProps> = ({ isOpen, onCl
   if (!isOpen) return null;
 
   const validateGoogleEmail = (email: string) => {
-    const regex = /^[a-zA-Z0-9._]+@gmail\.com$/;
+    const regex = /^[a-zA-Z0-9][a-zA-Z0-9._]*@gmail\.com$/;
     return regex.test(email);
   };
 
@@ -30,7 +29,8 @@ export const GoogleLoginModal: React.FC<GoogleLoginModalProps> = ({ isOpen, onCl
     }
 
     if (!validateGoogleEmail(email.trim())) {
-      setError('Couldn\'t find your Google Account. Please enter a valid @gmail.com address.');
+      // Just check validity, no database check (Auto-Reg logic handled in service)
+      setError('Please enter a valid @gmail.com address.');
       return;
     }
 
@@ -57,7 +57,7 @@ export const GoogleLoginModal: React.FC<GoogleLoginModalProps> = ({ isOpen, onCl
         {/* Close Button */}
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-500 hover:bg-slate-100 p-2 rounded-full transition-colors"
+          className="absolute top-4 right-4 text-stone-500 hover:bg-stone-100 p-2 rounded-full transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -70,8 +70,8 @@ export const GoogleLoginModal: React.FC<GoogleLoginModalProps> = ({ isOpen, onCl
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            <h2 className="text-2xl font-medium text-slate-800 mb-2">Sign in</h2>
-            <p className="text-base text-slate-600">to continue to NeuroCalm</p>
+            <h2 className="text-2xl font-medium text-stone-800 mb-2">Sign in</h2>
+            <p className="text-base text-stone-600">to continue to NeuroCalm</p>
         </div>
 
         {/* Form Body */}
@@ -84,11 +84,11 @@ export const GoogleLoginModal: React.FC<GoogleLoginModalProps> = ({ isOpen, onCl
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleNext()}
-                            className={`w-full px-3 py-3.5 border rounded-md text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all peer ${error ? 'border-red-600' : 'border-slate-300'}`}
+                            className={`w-full px-3 py-3.5 border rounded-md text-stone-900 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all peer ${error ? 'border-red-600' : 'border-stone-300'}`}
                             placeholder=" "
                             autoFocus
                         />
-                        <label className={`absolute left-3 px-1 bg-white transition-all duration-200 pointer-events-none ${email ? '-top-2.5 text-xs text-blue-600' : 'top-3.5 text-slate-500 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-blue-600'}`}>
+                        <label className={`absolute left-3 px-1 bg-white transition-all duration-200 pointer-events-none ${email ? '-top-2.5 text-xs text-orange-600' : 'top-3.5 text-stone-500 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-orange-600'}`}>
                             Email or phone
                         </label>
                     </div>
@@ -101,20 +101,20 @@ export const GoogleLoginModal: React.FC<GoogleLoginModalProps> = ({ isOpen, onCl
                     )}
 
                     <div className="mt-2">
-                        <button className="text-sm text-blue-600 font-medium hover:text-blue-700">
+                        <button className="text-sm text-orange-600 font-medium hover:text-orange-700">
                             Forgot email?
                         </button>
                     </div>
 
-                    <div className="mt-10 text-sm text-slate-500">
+                    <div className="mt-10 text-sm text-stone-500">
                         Not your computer? Use Guest mode to sign in privately. <br/>
-                        <a href="#" className="text-blue-600 font-medium hover:text-blue-700">Learn more</a>
+                        <a href="#" className="text-orange-600 font-medium hover:text-orange-700">Learn more</a>
                     </div>
                 </>
             ) : (
                 <div className="flex flex-col items-center justify-center flex-1 pb-10">
-                    <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-                    <p className="text-slate-600">Verifying account...</p>
+                    <Loader2 className="w-10 h-10 text-orange-600 animate-spin mb-4" />
+                    <p className="text-stone-600">Verifying account...</p>
                 </div>
             )}
         </div>
@@ -124,13 +124,13 @@ export const GoogleLoginModal: React.FC<GoogleLoginModalProps> = ({ isOpen, onCl
             <div className="px-10 py-6 flex justify-between items-center mt-auto">
                 <button 
                     onClick={onClose}
-                    className="text-sm font-medium text-blue-600 hover:bg-blue-50 px-4 py-2 rounded transition-colors"
+                    className="text-sm font-medium text-orange-600 hover:bg-orange-50 px-4 py-2 rounded transition-colors"
                 >
                     Create account
                 </button>
                 <button 
                     onClick={handleNext}
-                    className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded transition-all shadow-sm"
+                    className="text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 px-6 py-2 rounded transition-all shadow-sm"
                 >
                     Next
                 </button>
